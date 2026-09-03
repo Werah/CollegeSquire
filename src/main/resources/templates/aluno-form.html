@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}" lang="pt-br">
+<body>
+
+<div layout:fragment="conteudo">
+
+    <div class="admin-form">
+        <h2 th:text="${aluno.id} != null ? 'Editar aluno' : 'Novo aluno'"></h2>
+
+        <form th:action="@{/alunos}" th:object="${aluno}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="input-group">
+                <label>Nome</label>
+                <input type="text" th:field="*{nome}" required>
+            </div>
+            <div class="input-group">
+                <label>Matricula</label>
+                <input type="text" th:field="*{matricula}" required>
+            </div>
+            <div class="input-group">
+                <label>Curso</label>
+                <select th:field="*{curso}">
+                    <option value="">Selecione...</option>
+                    <option th:each="c : ${cursos}" th:value="${c.id}" th:text="${c.nome}"></option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Turma</label>
+                <select th:field="*{turma}" required>
+                    <option value="">Selecione...</option>
+                    <option th:each="t : ${turmas}" th:value="${t.id}"
+                            th:text="'Turma ' + ${t.numero} + (${t.curso} != null ? ' - ' + ${t.curso.nome} : '')"></option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>CPF</label>
+                <input type="text" th:field="*{cpf}" required>
+            </div>
+            <div class="input-group">
+                <label>Endereco</label>
+                <input type="text" th:field="*{endereco}">
+            </div>
+            <div class="input-group">
+                <label>Telefone</label>
+                <input type="text" th:field="*{telefone}">
+            </div>
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" th:field="*{email}" required>
+            </div>
+            <div class="input-group">
+                <label th:text="${aluno.id} != null ? 'Nova senha' : 'Senha'"></label>
+                <input type="password" th:field="*{senha}" th:required="${aluno.id} == null">
+                <small th:if="${aluno.id} != null">Deixe em branco para manter a senha atual.</small>
+            </div>
+            <div class="botoes">
+                <button type="submit" class="btn btn-primario">Salvar</button>
+                <a class="btn btn-secundario" th:href="@{/alunos}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

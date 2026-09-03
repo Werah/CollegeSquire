@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}" lang="pt-br">
+<body>
+
+<div layout:fragment="conteudo">
+
+    <div class="admin-form">
+        <h2 th:text="${curso.id} != null ? 'Editar curso' : 'Novo curso'"></h2>
+
+        <form th:action="@{/cursos}" th:object="${curso}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="input-group">
+                <label>Nome</label>
+                <input type="text" th:field="*{nome}" required>
+            </div>
+            <div class="input-group">
+                <label>Sigla</label>
+                <input type="text" th:field="*{sigla}" required>
+            </div>
+            <div class="botoes">
+                <button type="submit" class="btn btn-primario">Salvar</button>
+                <a class="btn btn-secundario" th:href="@{/cursos}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

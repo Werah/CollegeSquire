@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}" lang="pt-br">
+<body>
+
+<div layout:fragment="conteudo">
+
+    <div class="admin-form">
+        <h2 th:text="${disciplina.id} != null ? 'Editar disciplina' : 'Nova disciplina'"></h2>
+
+        <form th:action="@{/disciplinas}" th:object="${disciplina}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="input-group">
+                <label>Nome</label>
+                <input type="text" th:field="*{nome}" required>
+            </div>
+            <div class="input-group">
+                <label>Sigla</label>
+                <input type="text" th:field="*{sigla}" required>
+            </div>
+            <div class="input-group">
+                <label>Turma</label>
+                <select th:field="*{turma}" required>
+                    <option value="">Selecione...</option>
+                    <option th:each="t : ${turmas}" th:value="${t.id}"
+                            th:text="'Turma ' + ${t.numero} + (${t.curso} != null ? ' - ' + ${t.curso.nome} : '')"></option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>Professor</label>
+                <select th:field="*{professor}" required>
+                    <option value="">Selecione...</option>
+                    <option th:each="p : ${professores}" th:value="${p.id}" th:text="${p.nome}"></option>
+                </select>
+            </div>
+            <div class="botoes">
+                <button type="submit" class="btn btn-primario">Salvar</button>
+                <a class="btn btn-secundario" th:href="@{/disciplinas}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

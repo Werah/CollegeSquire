@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}" lang="pt-br">
+<body>
+
+<div layout:fragment="conteudo">
+
+    <div class="admin-toolbar">
+        <h2>Professores cadastrados</h2>
+        <a class="btn btn-primario" th:href="@{/professores/novo}">+ Inserir</a>
+    </div>
+
+    <table class="tabela-grade" th:if="${not #lists.isEmpty(professores)}">
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Registro</th>
+            <th>E-mail</th>
+            <th class="col-acoes"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="p : ${professores}">
+            <td th:text="${p.nome}"></td>
+            <td th:text="${p.registro}"></td>
+            <td th:text="${p.email}"></td>
+            <td class="col-acoes">
+                <a class="btn-icone" th:href="@{/professores/editar/{id}(id=${p.id})}" title="Editar">&#9998;</a>
+                <a class="btn-icone excluir" th:href="@{/professores/deletar/{id}(id=${p.id})}" title="Excluir"
+                   onclick="return confirm('Excluir este registro?')">&#10006;</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="tabela-vazia" th:if="${#lists.isEmpty(professores)}">Nenhum professor cadastrado ainda.</p>
+
+</div>
+
+</body>
+</html>

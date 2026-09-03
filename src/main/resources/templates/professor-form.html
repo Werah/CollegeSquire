@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}" lang="pt-br">
+<body>
+
+<div layout:fragment="conteudo">
+
+    <div class="admin-form">
+        <h2 th:text="${professor.id} != null ? 'Editar professor' : 'Novo professor'"></h2>
+
+        <form th:action="@{/professores}" th:object="${professor}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="input-group">
+                <label>Nome</label>
+                <input type="text" th:field="*{nome}" required>
+            </div>
+            <div class="input-group">
+                <label>Registro funcional</label>
+                <input type="text" th:field="*{registro}" required>
+            </div>
+            <div class="input-group">
+                <label>CPF</label>
+                <input type="text" th:field="*{cpf}" required>
+            </div>
+            <div class="input-group">
+                <label>Endereco</label>
+                <input type="text" th:field="*{endereco}">
+            </div>
+            <div class="input-group">
+                <label>Telefone</label>
+                <input type="text" th:field="*{telefone}">
+            </div>
+            <div class="input-group">
+                <label>E-mail</label>
+                <input type="email" th:field="*{email}" required>
+            </div>
+            <div class="input-group">
+                <label th:text="${professor.id} != null ? 'Nova senha' : 'Senha'"></label>
+                <input type="password" th:field="*{senha}" th:required="${professor.id} == null">
+                <small th:if="${professor.id} != null">Deixe em branco para manter a senha atual.</small>
+            </div>
+            <div class="botoes">
+                <button type="submit" class="btn btn-primario">Salvar</button>
+                <a class="btn btn-secundario" th:href="@{/professores}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>

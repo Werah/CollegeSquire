@@ -1,0 +1,289 @@
+.app-shell {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.app-shell > .fundo-padrao {
+    opacity: 0.4;
+}
+
+.app-shell > .app-header,
+.app-shell > .app-nav,
+.app-shell > .app-content {
+    position: relative;
+    z-index: 1;
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 28px;
+    background: var(--branco);
+    color: var(--azul-900);
+    border-bottom: 3px solid var(--azul-600);
+    box-shadow: var(--sombra-sm);
+}
+
+.app-header .brasao {
+    width: 44px;
+}
+
+.app-header .marca {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.app-header .marca strong {
+    font-family: "Cinzel", Georgia, serif;
+    font-size: 18px;
+    letter-spacing: 0.03em;
+    color: var(--azul-900);
+}
+
+.app-header .marca span {
+    font-size: 12px;
+    color: var(--cinza-500);
+}
+
+.app-header .usuario {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 14px;
+    color: var(--cinza-700);
+}
+
+.app-header .usuario .badge {
+    padding: 4px 12px;
+    border-radius: 999px;
+    background: var(--azul-100);
+    border: 1px solid var(--azul-200);
+    color: var(--azul-800);
+    font-size: 11.5px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.app-header .btn-sair {
+    padding: 8px 16px;
+    border-radius: var(--raio);
+    background: var(--cinza-050);
+    border: 1px solid var(--cinza-300);
+    color: var(--azul-800);
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.15s ease;
+}
+
+.app-header .btn-sair:hover {
+    background: var(--azul-100);
+    border-color: var(--azul-300);
+}
+
+.app-nav {
+    display: flex;
+    gap: 8px;
+    padding: 12px 28px;
+    background: var(--branco);
+    border-bottom: 1px solid var(--cinza-200);
+    overflow-x: auto;
+}
+
+.app-nav a {
+    padding: 9px 18px;
+    border-radius: var(--raio);
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--azul-700);
+    background: var(--cinza-100);
+    white-space: nowrap;
+    transition: 0.15s ease;
+}
+
+.app-nav a:hover {
+    background: var(--azul-100);
+    color: var(--azul-900);
+}
+
+.app-content {
+    flex: 1;
+    padding: 28px;
+}
+
+.painel {
+    background: var(--branco);
+    border-radius: var(--raio);
+    box-shadow: var(--sombra-sm);
+    border: 1px solid var(--cinza-200);
+    padding: 24px;
+    margin-bottom: 24px;
+}
+
+.painel h2 {
+    font-size: 18px;
+    color: var(--azul-900);
+    margin-bottom: 16px;
+}
+
+.tabela-grade {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+.tabela-grade th {
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--cinza-100);
+    color: var(--cinza-700);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.tabela-grade td {
+    padding: 10px 12px;
+    border-top: 1px solid var(--cinza-200);
+}
+
+.tabela-vazia {
+    padding: 24px;
+    text-align: center;
+    color: var(--cinza-500);
+    font-size: 14px;
+}
+
+.turma-resumo {
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.turma-resumo:last-child {
+    margin-bottom: 0;
+}
+
+.turma-resumo-cabecalho {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.turma-resumo-cabecalho > div:first-child {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.turma-resumo-cabecalho strong {
+    font-family: "Cinzel", Georgia, serif;
+    color: var(--azul-900);
+    font-size: 15px;
+}
+
+.turma-resumo-cabecalho > div:first-child span {
+    font-size: 12.5px;
+    color: var(--cinza-500);
+}
+
+.turma-resumo-metricas {
+    display: flex;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.metrica {
+    font-size: 12.5px;
+    color: var(--cinza-700);
+}
+
+.metrica strong {
+    color: var(--azul-800);
+}
+
+.acoes {
+    text-align: right;
+}
+
+.acoes .btn {
+    padding: 7px 14px;
+    font-size: 12px;
+}
+
+.form-inline {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+}
+
+.form-inline .input-group {
+    margin-bottom: 0;
+    min-width: 150px;
+    flex: 1;
+}
+
+.form-inline .input-group.checkbox {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    min-width: auto;
+}
+
+.form-inline .input-group.checkbox input {
+    width: auto;
+}
+
+.form-inline .btn {
+    height: 44px;
+}
+
+.perfil-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 14px;
+}
+
+.perfil-info div {
+    font-size: 13.5px;
+}
+
+.perfil-info span {
+    display: block;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--cinza-500);
+    margin-bottom: 4px;
+}
+
+.painel-vazio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 60px 20px;
+    color: var(--cinza-500);
+    border: 1px dashed var(--cinza-300);
+    border-radius: var(--raio);
+}
+
+.painel-vazio strong {
+    color: var(--azul-800);
+    font-family: "Cinzel", Georgia, serif;
+    font-size: 15px;
+}

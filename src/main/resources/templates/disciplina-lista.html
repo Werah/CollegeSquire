@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}" lang="pt-br">
+<body>
+
+<div layout:fragment="conteudo">
+
+    <div class="admin-toolbar">
+        <h2>Disciplinas cadastradas</h2>
+        <a class="btn btn-primario" th:href="@{/disciplinas/novo}">+ Inserir</a>
+    </div>
+
+    <table class="tabela-grade" th:if="${not #lists.isEmpty(disciplinas)}">
+        <thead>
+        <tr>
+            <th>Nome</th>
+            <th>Sigla</th>
+            <th>Turma</th>
+            <th>Professor</th>
+            <th class="col-acoes"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="d : ${disciplinas}">
+            <td th:text="${d.nome}"></td>
+            <td th:text="${d.sigla}"></td>
+            <td th:text="${d.turma != null ? 'Turma ' + d.turma.numero + (d.turma.curso != null ? ' - ' + d.turma.curso.sigla : '') : '-'}"></td>
+            <td th:text="${d.professor != null ? d.professor.nome : '-'}"></td>
+            <td class="col-acoes">
+                <a class="btn-icone" th:href="@{/disciplinas/editar/{id}(id=${d.id})}" title="Editar">&#9998;</a>
+                <a class="btn-icone excluir" th:href="@{/disciplinas/deletar/{id}(id=${d.id})}" title="Excluir"
+                   onclick="return confirm('Excluir este registro?')">&#10006;</a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <p class="tabela-vazia" th:if="${#lists.isEmpty(disciplinas)}">Nenhuma disciplina cadastrada ainda.</p>
+
+</div>
+
+</body>
+</html>

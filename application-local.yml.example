@@ -1,0 +1,17 @@
+# Copie este arquivo para "application-local.yml" (na raiz do projeto) e
+# preencha com os valores reais. O application-local.yml NAO deve ser
+# commitado - ele ja esta no .gitignore.
+#
+# Alternativa: defina as mesmas chaves como variaveis de ambiente
+# (DB_USERNAME, DB_PASSWORD, COORDENACAO_EMAIL, COORDENACAO_SENHA) em vez
+# de usar este arquivo.
+
+spring:
+  datasource:
+    username: postgres
+    password: sua_senha_do_postgres
+
+collegesquire:
+  coordenacao:
+    email: coordenacao@collegesquire.com
+    senha: escolha_uma_senha_forte

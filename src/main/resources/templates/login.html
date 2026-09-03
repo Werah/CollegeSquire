@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>College Squire - Entrar</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body th:attr="data-aba-inicial=${abaAtiva}">
+
+<div class="login-shell">
+
+    <div class="fundo-padrao"></div>
+    <div class="login-fade"></div>
+
+    <div class="login-helm">
+        <div th:replace="~{fragments/brasao :: brasao}"></div>
+    </div>
+
+    <div class="login-content">
+        <div class="login-card">
+
+            <div class="marca">
+                <strong>College Squire</strong>
+                <span>Sistema de gestao academica</span>
+            </div>
+
+            <div class="tabs">
+                <button type="button" class="tab-btn" data-aba="login" onclick="mostrarAba('login')">Entrar</button>
+                <button type="button" class="tab-btn" data-aba="senha" onclick="mostrarAba('senha')">Recuperar senha</button>
+            </div>
+
+            <!-- ENTRAR -->
+            <div class="aba" data-aba="login">
+                <h2>Entrar</h2>
+
+                <p class="msg erro" th:if="${erroLogin}" th:text="${erroLogin}"></p>
+                <p class="msg sucesso" th:if="${sucessoSenha}" th:text="${sucessoSenha}"></p>
+
+                <form th:action="@{/login}" method="post">
+                    <div class="input-group">
+                        <label>E-mail</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Senha</label>
+                        <input type="password" name="senha" required>
+                    </div>
+                    <button type="submit" class="btn btn-primario">Entrar</button>
+                </form>
+
+                <div class="aba-rodape">
+                    Esqueceu a senha?
+                    <button type="button" onclick="mostrarAba('senha')">Recuperar senha</button>
+                </div>
+            </div>
+
+            <!-- RECUPERAR SENHA -->
+            <div class="aba" data-aba="senha" hidden>
+                <h2>Recuperar senha</h2>
+
+                <p class="msg erro" th:if="${erroSenha}" th:text="${erroSenha}"></p>
+
+                <form th:action="@{/alterar-senha}" method="post">
+                    <div class="input-group">
+                        <label>E-mail</label>
+                        <input type="email" name="email" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Senha atual</label>
+                        <input type="password" name="senhaAtual" required>
+                    </div>
+                    <div class="linha-dupla">
+                        <div class="input-group">
+                            <label>Nova senha</label>
+                            <input type="password" name="novaSenha" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Confirmar nova senha</label>
+                            <input type="password" name="confirmarNovaSenha" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primario">Alterar senha</button>
+                </form>
+
+                <div class="aba-rodape">
+                    Lembrou a senha?
+                    <button type="button" onclick="mostrarAba('login')">Entrar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<script>
+    function mostrarAba(nome) {
+        document.querySelectorAll('.aba').forEach(function (el) {
+            el.hidden = el.dataset.aba !== nome;
+        });
+        document.querySelectorAll('.tab-btn').forEach(function (el) {
+            el.classList.toggle('active', el.dataset.aba === nome);
+        });
+    }
+
+    mostrarAba(document.body.dataset.abaInicial || 'login');
+</script>
+
+</body>
+</html>

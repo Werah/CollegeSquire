@@ -1,0 +1,70 @@
+.admin-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.admin-toolbar h2 {
+    font-size: 18px;
+    color: var(--azul-900);
+}
+
+.admin-form {
+    max-width: 520px;
+}
+
+.admin-form h2 {
+    font-size: 18px;
+    color: var(--azul-900);
+    margin-bottom: 18px;
+}
+
+.admin-form .botoes {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.admin-form small {
+    display: block;
+    margin-top: -10px;
+    margin-bottom: 16px;
+    color: var(--cinza-500);
+    font-size: 12px;
+}
+
+.tabela-grade .col-acoes {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.btn-icone {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--cinza-300);
+    background: var(--branco);
+    color: var(--azul-700);
+    font-size: 13px;
+    margin-left: 6px;
+    transition: 0.15s ease;
+    cursor: pointer;
+}
+
+.btn-icone:hover {
+    border-color: var(--azul-500);
+    background: var(--azul-100);
+}
+
+.btn-icone.excluir {
+    color: #a03434;
+}
+
+.btn-icone.excluir:hover {
+    border-color: #d68989;
+    background: #fbeaea;
+}

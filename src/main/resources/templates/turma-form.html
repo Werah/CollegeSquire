@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}" lang="pt-br">
+<body>
+
+<div layout:fragment="conteudo">
+
+    <div class="admin-form">
+        <h2 th:text="${turma.id} != null ? 'Editar turma' : 'Nova turma'"></h2>
+
+        <form th:action="@{/turmas}" th:object="${turma}" method="post">
+            <input type="hidden" th:field="*{id}">
+            <div class="input-group">
+                <label>Numero</label>
+                <input type="number" th:field="*{numero}" required>
+            </div>
+            <div class="input-group">
+                <label>Periodo</label>
+                <input type="text" th:field="*{periodo}" placeholder="2026/1">
+            </div>
+            <div class="input-group">
+                <label>Curso</label>
+                <select th:field="*{curso}" required>
+                    <option value="">Selecione...</option>
+                    <option th:each="c : ${cursos}" th:value="${c.id}" th:text="${c.nome}"></option>
+                </select>
+            </div>
+            <div class="botoes">
+                <button type="submit" class="btn btn-primario">Salvar</button>
+                <a class="btn btn-secundario" th:href="@{/turmas}">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+</body>
+</html>
