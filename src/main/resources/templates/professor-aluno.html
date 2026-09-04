@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/theme.css">
     <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
 
@@ -68,27 +69,65 @@
         <section class="painel">
             <h2>Frequencia nesta disciplina</h2>
 
-            <table class="tabela-grade" th:if="${not #lists.isEmpty(frequencias)}">
-                <thead>
-                <tr>
-                    <th>Data</th>
-                    <th>Presenca</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="f : ${frequencias}">
-                    <td th:text="${f.data}"></td>
-                    <td th:text="${f.presente} ? 'Presente' : 'Falta'"></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="lancar-shell">
 
-            <p class="tabela-vazia" th:if="${#lists.isEmpty(frequencias)}">Nenhuma frequencia lancada ainda.</p>
+                <div class="lancar-config">
+                    <div class="calendario">
+                        <div class="calendario-cabecalho">
+                            <button type="button" id="mesAnterior">&#8249;</button>
+                            <span id="calendarioTitulo"></span>
+                            <button type="button" id="proximoMes">&#8250;</button>
+                        </div>
+                        <div class="calendario-dias-semana">
+                            <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                        </div>
+                        <div class="calendario-grade" id="calendarioGrade"></div>
+                    </div>
+
+                    <div class="calendario-data-selecionada">
+                        Data selecionada
+                        <strong id="dataSelecionadaTexto"></strong>
+                    </div>
+                </div>
+
+                <div class="lancar-alunos">
+                    <div class="status-grande" id="statusPresenca">-</div>
+                </div>
+
+            </div>
         </section>
 
     </main>
 
 </div>
+
+<script th:inline="javascript">
+    var frequenciasPorDia = /*[[${frequenciasPorDia}]]*/ {};
+</script>
+<script src="/js/calendario.js"></script>
+<script>
+    function atualizarStatusAluno(data) {
+        var status = frequenciasPorDia[data];
+        var el = document.getElementById('statusPresenca');
+
+        el.classList.remove('presente', 'falta');
+
+        if (status === true) {
+            el.textContent = 'Presente';
+            el.classList.add('presente');
+        } else if (status === false) {
+            el.textContent = 'Falta';
+            el.classList.add('falta');
+        } else {
+            el.textContent = 'Sem registro';
+        }
+    }
+
+    iniciarCalendario({
+        dataTextoId: 'dataSelecionadaTexto',
+        onSelecionar: atualizarStatusAluno
+    });
+</script>
 
 </body>
 </html>

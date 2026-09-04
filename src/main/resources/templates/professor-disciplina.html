@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/css/theme.css">
     <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/admin.css">
 </head>
 <body>
 
@@ -29,7 +30,13 @@
     <main class="app-content">
 
         <section class="painel">
-            <h2>Alunos matriculados</h2>
+            <div class="admin-toolbar">
+                <h2>Alunos matriculados</h2>
+                <div class="acoes">
+                    <a class="btn btn-primario" th:href="@{/professor/disciplinas/{id}/notas(id=${disciplina.id})}">Lancar notas</a>
+                    <a class="btn btn-primario" th:href="@{/professor/disciplinas/{id}/frequencia(id=${disciplina.id})}">Lancar faltas</a>
+                </div>
+            </div>
 
             <table class="tabela-grade" th:if="${not #lists.isEmpty(alunos)}">
                 <thead>
@@ -53,58 +60,6 @@
             </table>
 
             <p class="tabela-vazia" th:if="${#lists.isEmpty(alunos)}">Nenhum aluno matriculado nesta turma.</p>
-        </section>
-
-        <section class="painel" th:if="${not #lists.isEmpty(alunos)}">
-            <h2>Lancar nota</h2>
-
-            <form class="form-inline" th:action="@{/professor/disciplinas/{id}/notas(id=${disciplina.id})}" method="post">
-                <div class="input-group">
-                    <label>Aluno</label>
-                    <select name="alunoId" required>
-                        <option th:each="a : ${alunos}" th:value="${a.id}" th:text="${a.nome}"></option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Avaliacao</label>
-                    <input type="text" name="descricao" placeholder="Prova 1" required>
-                </div>
-                <div class="input-group">
-                    <label>Tipo</label>
-                    <input type="text" name="tipo" placeholder="Prova" required>
-                </div>
-                <div class="input-group">
-                    <label>Peso</label>
-                    <input type="number" step="0.1" name="peso" value="1" required>
-                </div>
-                <div class="input-group">
-                    <label>Nota</label>
-                    <input type="number" step="0.1" name="valor" required>
-                </div>
-                <button type="submit" class="btn btn-primario">Lancar</button>
-            </form>
-        </section>
-
-        <section class="painel" th:if="${not #lists.isEmpty(alunos)}">
-            <h2>Lancar frequencia</h2>
-
-            <form class="form-inline" th:action="@{/professor/disciplinas/{id}/frequencia(id=${disciplina.id})}" method="post">
-                <div class="input-group">
-                    <label>Aluno</label>
-                    <select name="alunoId" required>
-                        <option th:each="a : ${alunos}" th:value="${a.id}" th:text="${a.nome}"></option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label>Data</label>
-                    <input type="date" name="data" required>
-                </div>
-                <div class="input-group checkbox">
-                    <label>Presente</label>
-                    <input type="checkbox" name="presente" value="true">
-                </div>
-                <button type="submit" class="btn btn-primario">Lancar</button>
-            </form>
         </section>
 
         <section class="painel">
@@ -137,29 +92,88 @@
         <section class="painel">
             <h2>Frequencia lancada</h2>
 
-            <table class="tabela-grade" th:if="${not #lists.isEmpty(frequencias)}">
-                <thead>
-                <tr>
-                    <th>Aluno</th>
-                    <th>Data</th>
-                    <th>Presenca</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="f : ${frequencias}">
-                    <td th:text="${f.aluno.nome}"></td>
-                    <td th:text="${f.data}"></td>
-                    <td th:text="${f.presente} ? 'Presente' : 'Falta'"></td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="lancar-shell" th:if="${not #lists.isEmpty(alunos)}">
 
-            <p class="tabela-vazia" th:if="${#lists.isEmpty(frequencias)}">Nenhuma frequencia lancada ainda.</p>
+                <div class="lancar-config">
+                    <div class="calendario">
+                        <div class="calendario-cabecalho">
+                            <button type="button" id="mesAnterior">&#8249;</button>
+                            <span id="calendarioTitulo"></span>
+                            <button type="button" id="proximoMes">&#8250;</button>
+                        </div>
+                        <div class="calendario-dias-semana">
+                            <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                        </div>
+                        <div class="calendario-grade" id="calendarioGrade"></div>
+                    </div>
+
+                    <div class="calendario-data-selecionada">
+                        Data selecionada
+                        <strong id="dataSelecionadaTexto"></strong>
+                    </div>
+                </div>
+
+                <div class="lancar-alunos">
+                    <table class="tabela-grade">
+                        <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Matricula</th>
+                            <th>Presenca</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="a : ${alunos}">
+                            <td th:text="${a.nome}"></td>
+                            <td th:text="${a.matricula}"></td>
+                            <td class="status-presenca" th:attr="data-aluno-id=${a.id}">-</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <p class="tabela-vazia" th:if="${#lists.isEmpty(alunos)}">Nenhum aluno matriculado nesta turma.</p>
         </section>
 
     </main>
 
 </div>
+
+<script th:inline="javascript">
+    var frequenciasPorDia = /*[[${frequenciasPorDia}]]*/ {};
+</script>
+<script src="/js/calendario.js"></script>
+<script>
+    function atualizarStatusAlunos(data) {
+        var registros = frequenciasPorDia[data] || {};
+
+        document.querySelectorAll('.status-presenca').forEach(function (celula) {
+            var alunoId = celula.getAttribute('data-aluno-id');
+            var status = registros[alunoId];
+
+            celula.classList.remove('presente', 'falta');
+
+            if (status === true) {
+                celula.textContent = 'Presente';
+                celula.classList.add('presente');
+            } else if (status === false) {
+                celula.textContent = 'Falta';
+                celula.classList.add('falta');
+            } else {
+                celula.textContent = 'Sem registro';
+            }
+        });
+    }
+
+    if (document.getElementById('calendarioGrade')) {
+        iniciarCalendario({
+            dataTextoId: 'dataSelecionadaTexto',
+            onSelecionar: atualizarStatusAlunos
+        });
+    }
+</script>
 
 </body>
 </html>

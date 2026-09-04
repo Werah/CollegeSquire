@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'College Squire - Faltas - ' + ${disciplina.nome}">College Squire</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <div class="fundo-padrao"></div>
+
+    <header class="app-header">
+        <div th:replace="~{fragments/brasao :: brasao}"></div>
+        <div class="marca">
+            <strong th:text="${disciplina.nome}"></strong>
+            <span>Lancar faltas</span>
+        </div>
+        <div class="usuario">
+            <a class="btn-sair" th:href="@{/professor/disciplinas/{id}(id=${disciplina.id})}">Voltar</a>
+        </div>
+    </header>
+
+    <main class="app-content">
+
+        <section class="painel">
+
+            <form th:action="@{/professor/disciplinas/{id}/frequencia(id=${disciplina.id})}" method="post">
+
+                <div class="lancar-shell">
+
+                    <div class="lancar-config">
+                        <h2>Data da aula</h2>
+
+                        <div class="calendario">
+                            <div class="calendario-cabecalho">
+                                <button type="button" id="mesAnterior">&#8249;</button>
+                                <span id="calendarioTitulo"></span>
+                                <button type="button" id="proximoMes">&#8250;</button>
+                            </div>
+                            <div class="calendario-dias-semana">
+                                <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                            </div>
+                            <div class="calendario-grade" id="calendarioGrade"></div>
+                        </div>
+
+                        <input type="hidden" name="data" id="dataSelecionada">
+                        <div class="calendario-data-selecionada">
+                            Data selecionada
+                            <strong id="dataSelecionadaTexto"></strong>
+                        </div>
+                    </div>
+
+                    <div class="lancar-alunos">
+                        <h2>Alunos</h2>
+
+                        <table class="tabela-grade" th:if="${not #lists.isEmpty(alunos)}">
+                            <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Matricula</th>
+                                <th>Presente</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="a : ${alunos}">
+                                <td th:text="${a.nome}"></td>
+                                <td th:text="${a.matricula}"></td>
+                                <td class="col-check">
+                                    <input type="checkbox" name="presentes" th:value="${a.id}" checked>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <p class="tabela-vazia" th:if="${#lists.isEmpty(alunos)}">Nenhum aluno matriculado nesta turma.</p>
+
+                        <button type="submit" class="btn btn-primario" style="margin-top:16px;" th:if="${not #lists.isEmpty(alunos)}">Lancar faltas</button>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </section>
+
+    </main>
+
+</div>
+
+<script src="/js/calendario.js"></script>
+<script>
+    iniciarCalendario({
+        dataInputId: 'dataSelecionada',
+        dataTextoId: 'dataSelecionadaTexto'
+    });
+</script>
+
+</body>
+</html>
