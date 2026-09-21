@@ -1,32 +1,39 @@
 package com.collegesquire.controller;
 
+import com.collegesquire.dto.AlunoDto;
+import com.collegesquire.dto.DisciplinaDto;
 import com.collegesquire.dto.DisciplinaProfessorDTO;
-import com.collegesquire.dto.DisciplinaResumoDTO;
-import com.collegesquire.model.*;
-import com.collegesquire.repository.*;
+import com.collegesquire.dto.GradeDto;
+import com.collegesquire.model.DiaSemana;
+import com.collegesquire.model.TipoUsuario;
+import com.collegesquire.service.AlunoService;
+import com.collegesquire.service.DisciplinaService;
+import com.collegesquire.service.GradeService;
+import com.collegesquire.service.ProfessorService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Controller
 public class HomeController {
 
-    private final AlunoRepository alunoRepository;
-    private final DisciplinaRepository disciplinaRepository;
-    private final NotasRepository notasRepository;
-    private final FrequenciaRepository frequenciaRepository;
+    private final AlunoService alunoService;
+    private final ProfessorService professorService;
+    private final DisciplinaService disciplinaService;
+    private final GradeService gradeService;
 
-    public HomeController(AlunoRepository alunoRepository,
-                           DisciplinaRepository disciplinaRepository,
-                           NotasRepository notasRepository,
-                           FrequenciaRepository frequenciaRepository) {
-        this.alunoRepository = alunoRepository;
-        this.disciplinaRepository = disciplinaRepository;
-        this.notasRepository = notasRepository;
-        this.frequenciaRepository = frequenciaRepository;
+    public HomeController(AlunoService alunoService, ProfessorService professorService,
+                           DisciplinaService disciplinaService, GradeService gradeService) {
+        this.alunoService = alunoService;
+        this.professorService = professorService;
+        this.disciplinaService = disciplinaService;
+        this.gradeService = gradeService;
     }
 
     @GetMapping("/home")
@@ -42,6 +49,7 @@ public class HomeController {
 
         model.addAttribute("tipo", tipo);
         model.addAttribute("nome", usuarioNome);
+        model.addAttribute("diasSemana", List.of(DiaSemana.values()));
 
         if (tipo == TipoUsuario.ALUNO) {
             montarPainelAluno(usuarioId, model);
@@ -54,76 +62,44 @@ public class HomeController {
 
     private void montarPainelAluno(Long alunoId, Model model) {
 
-        Aluno aluno = alunoRepository.findById(alunoId).orElseThrow();
-        Curso curso = aluno.getCurso();
-        Turma turma = aluno.getTurma();
+        AlunoDto aluno = alunoService.buscarDto(alunoId);
 
-        List<Disciplina> disciplinas = turma != null
-                ? disciplinaRepository.findByTurmaId(turma.getId())
+        List<DisciplinaDto> disciplinas = aluno.turma() != null
+                ? disciplinaService.listarDtoPorTurma(aluno.turma().id())
                 : List.of();
 
-        List<Notas> todasNotas = notasRepository.findByAlunoIdOrderByDisciplinaIdAsc(alunoId);
-        List<Frequencia> todasFrequencias = frequenciaRepository.findByAlunoIdOrderByDisciplinaIdAsc(alunoId);
+        List<GradeDto> grade = aluno.turma() != null
+                ? gradeService.buscarGradeDaTurma(aluno.turma().id())
+                : List.of();
 
-        List<DisciplinaResumoDTO> resumoDisciplinas = disciplinas.stream()
-                .map(disciplina -> {
-                    List<Notas> notasDisciplina = todasNotas.stream()
-                            .filter(n -> n.getDisciplina().getId().equals(disciplina.getId()))
-                            .toList();
+        int periodosPorDia = aluno.turma() != null && aluno.turma().periodosPorDia() != null
+                ? aluno.turma().periodosPorDia()
+                : 0;
 
-                    List<Frequencia> freqDisciplina = todasFrequencias.stream()
-                            .filter(f -> f.getDisciplina().getId().equals(disciplina.getId()))
-                            .toList();
-
-                    Double media = calcularMedia(notasDisciplina);
-                    int totalAulas = freqDisciplina.size();
-                    int faltas = (int) freqDisciplina.stream()
-                            .filter(f -> Boolean.FALSE.equals(f.getPresente()))
-                            .count();
-                    double percentual = totalAulas == 0
-                            ? 100.0
-                            : (double) (totalAulas - faltas) / totalAulas * 100.0;
-
-                    return new DisciplinaResumoDTO(disciplina, notasDisciplina, media, totalAulas, faltas, percentual);
-                })
-                .toList();
-
-        model.addAttribute("curso", curso);
-        model.addAttribute("turmas", turma != null ? List.of(turma) : List.of());
-        model.addAttribute("resumoDisciplinas", resumoDisciplinas);
+        model.addAttribute("curso", aluno.curso());
+        model.addAttribute("disciplinas", disciplinas);
+        model.addAttribute("gradeMapa", paraMapa(grade));
+        model.addAttribute("linhasGrade", rangeDe1Ate(periodosPorDia));
     }
 
     private void montarPainelProfessor(Long professorId, Model model) {
 
-        List<Disciplina> disciplinas = disciplinaRepository.findByProfessorId(professorId);
+        List<DisciplinaProfessorDTO> minhasDisciplinas = professorService.montarPainelDisciplinas(professorId);
+        List<GradeDto> grade = gradeService.buscarGradeDoProfessor(professorId);
 
-        List<DisciplinaProfessorDTO> minhasDisciplinas = disciplinas.stream()
-                .map(disciplina -> {
-                    int totalAlunos = disciplina.getTurma() != null
-                            ? alunoRepository.findByTurmaId(disciplina.getTurma().getId()).size()
-                            : 0;
-                    return new DisciplinaProfessorDTO(disciplina, totalAlunos);
-                })
-                .toList();
+        int periodosPorDia = grade.stream().mapToInt(GradeDto::linha).max().orElse(0);
 
         model.addAttribute("minhasDisciplinas", minhasDisciplinas);
+        model.addAttribute("gradeMapa", paraMapa(grade));
+        model.addAttribute("linhasGrade", rangeDe1Ate(periodosPorDia));
     }
 
-    private Double calcularMedia(List<Notas> notas) {
+    private Map<String, GradeDto> paraMapa(List<GradeDto> grade) {
+        return grade.stream()
+                .collect(Collectors.toMap(g -> g.diaSemana().name() + "_" + g.linha(), g -> g, (a, b) -> a));
+    }
 
-        if (notas.isEmpty()) {
-            return null;
-        }
-
-        double somaPesos = notas.stream()
-                .mapToDouble(n -> n.getPeso() != null ? n.getPeso() : 1.0)
-                .sum();
-
-        double somaPonderada = notas.stream()
-                .mapToDouble(n -> (n.getValor() != null ? n.getValor() : 0.0)
-                        * (n.getPeso() != null ? n.getPeso() : 1.0))
-                .sum();
-
-        return somaPesos == 0 ? null : somaPonderada / somaPesos;
+    private List<Integer> rangeDe1Ate(int n) {
+        return n > 0 ? IntStream.rangeClosed(1, n).boxed().toList() : List.of();
     }
 }

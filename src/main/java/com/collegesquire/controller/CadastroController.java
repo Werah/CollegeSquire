@@ -1,8 +1,8 @@
 package com.collegesquire.controller;
 
 import com.collegesquire.model.TipoUsuario;
+import com.collegesquire.service.CrudService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 /**
  * Base generica para as telas administrativas de cadastro (listar e excluir).
  * As telas de novo/editar/salvar ficam em cada controller concreto, pois os
- * campos e relacionamentos variam por entidade.
+ * campos e relacionamentos variam por entidade. A listagem trabalha sempre
+ * com DTOs (nunca a entidade JPA), delegando as regras de negocio para o
+ * Service dedicado de cada entidade.
  */
-public abstract class CadastroController<T> {
+public abstract class CadastroController<D> {
 
-    protected abstract JpaRepository<T, Long> repositorio();
+    protected abstract CrudService<D> servico();
 
     protected abstract String prefixoView();
 
@@ -31,7 +33,7 @@ public abstract class CadastroController<T> {
             return "redirect:/home";
         }
 
-        model.addAttribute(atributoLista(), repositorio().findAll());
+        model.addAttribute(atributoLista(), servico().listarTodos());
         model.addAttribute("caminhoBase", caminhoBase());
         model.addAttribute("tituloPagina", tituloPagina());
 
@@ -45,7 +47,7 @@ public abstract class CadastroController<T> {
             return "redirect:/home";
         }
 
-        repositorio().deleteById(id);
+        servico().deletar(id);
 
         return "redirect:" + caminhoBase();
     }

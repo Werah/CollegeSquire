@@ -35,6 +35,11 @@
         <a th:href="@{/disciplinas}">Disciplinas</a>
         <a th:href="@{/turmas}">Turmas</a>
         <a th:href="@{/salas}">Salas</a>
+        <a th:href="@{/grades}">Grade curricular</a>
+    </nav>
+
+    <nav class="app-nav" th:if="${tipo.name() == 'PROFESSOR'}">
+        <a th:href="@{/salas}">Salas</a>
     </nav>
 
     <main class="app-content">
@@ -51,79 +56,81 @@
                 <p class="tabela-vazia" th:if="${curso == null}">Nenhum curso vinculado a sua matricula.</p>
             </section>
 
-            <section class="painel">
-                <h2>Minha turma</h2>
-                <table class="tabela-grade" th:if="${not #lists.isEmpty(turmas)}">
-                    <thead>
-                    <tr>
-                        <th>Turma</th>
-                        <th>Curso</th>
-                        <th>Periodo</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="t : ${turmas}">
-                        <td th:text="${t.numero}"></td>
-                        <td th:text="${t.curso != null ? t.curso.nome : '-'}"></td>
-                        <td th:text="${t.periodo}"></td>
-                    </tr>
-                    </tbody>
-                </table>
-                <p class="tabela-vazia" th:if="${#lists.isEmpty(turmas)}">Voce ainda nao esta matriculado em nenhuma turma.</p>
+            <section class="painel" th:if="${not #lists.isEmpty(linhasGrade)}">
+                <h2>Minha grade</h2>
+
+                <div class="grade-semanal">
+                    <div class="grade-cabecalho"></div>
+                    <div class="grade-cabecalho" th:each="dia : ${diasSemana}" th:text="${dia.rotulo}"></div>
+
+                    <th:block th:each="linha : ${linhasGrade}">
+                        <div class="grade-linha-rotulo" th:text="${linha}"></div>
+                        <div class="grade-celula" th:each="dia : ${diasSemana}">
+                            <a th:if="${gradeMapa.get(dia.name() + '_' + linha) != null}"
+                               th:href="@{/aluno/disciplinas/{id}(id=${gradeMapa.get(dia.name() + '_' + linha).disciplina.id})}">
+                                <span th:text="${gradeMapa.get(dia.name() + '_' + linha).disciplina.sigla}" style="font-size:12px; font-weight:700; color:inherit;"></span>
+                                <span th:text="${gradeMapa.get(dia.name() + '_' + linha).disciplina.professor != null ? gradeMapa.get(dia.name() + '_' + linha).disciplina.professor.nome : ''}"></span>
+                            </a>
+                        </div>
+                    </th:block>
+                </div>
             </section>
 
             <section class="painel">
-                <h2>Minhas notas e faltas</h2>
+                <h2>Disciplinas</h2>
 
-                <div th:if="${#lists.isEmpty(resumoDisciplinas)}" class="tabela-vazia">
+                <table class="tabela-grade" th:if="${not #lists.isEmpty(disciplinas)}">
+                    <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Sigla</th>
+                        <th>Professor</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="d : ${disciplinas}" class="linha-clicavel"
+                        th:attr="data-href=@{/aluno/disciplinas/{id}(id=${d.id})}">
+                        <td th:text="${d.nome}"></td>
+                        <td th:text="${d.sigla}"></td>
+                        <td th:text="${d.professor != null ? d.professor.nome : '-'}"></td>
+                        <td class="acoes">
+                            <a class="btn btn-secundario" th:href="@{/aluno/disciplinas/{id}(id=${d.id})}">Ver</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <p class="tabela-vazia" th:if="${#lists.isEmpty(disciplinas)}">
                     Nenhuma disciplina encontrada para a sua turma.
-                </div>
-
-                <div class="turma-resumo" th:each="r : ${resumoDisciplinas}">
-                    <div class="turma-resumo-cabecalho">
-                        <div>
-                            <strong th:text="${r.disciplina.nome}"></strong>
-                            <span th:text="${r.disciplina.professor != null ? r.disciplina.professor.nome : ''}"></span>
-                        </div>
-                        <div class="turma-resumo-metricas">
-                            <span class="metrica">
-                                Media: <strong th:text="${r.media != null ? #numbers.formatDecimal(r.media,1,1) : '-'}"></strong>
-                            </span>
-                            <span class="metrica">
-                                Presenca: <strong th:text="${#numbers.formatDecimal(r.percentualPresenca,1,1)} + '%'"></strong>
-                            </span>
-                            <span class="metrica">
-                                Faltas: <strong th:text="${r.faltas} + '/' + ${r.totalAulas}"></strong>
-                            </span>
-                        </div>
-                    </div>
-
-                    <table class="tabela-grade" th:if="${not #lists.isEmpty(r.notas)}">
-                        <thead>
-                        <tr>
-                            <th>Avaliacao</th>
-                            <th>Tipo</th>
-                            <th>Peso</th>
-                            <th>Nota</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="n : ${r.notas}">
-                            <td th:text="${n.descricao}"></td>
-                            <td th:text="${n.tipo}"></td>
-                            <td th:text="${n.peso}"></td>
-                            <td th:text="${n.valor}"></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    <p class="tabela-vazia" th:if="${#lists.isEmpty(r.notas)}">Nenhuma nota lancada ainda.</p>
-                </div>
+                </p>
             </section>
 
         </div>
 
         <!-- PROFESSOR -->
         <div th:if="${tipo.name() == 'PROFESSOR'}">
+
+            <section class="painel" th:if="${not #lists.isEmpty(linhasGrade)}">
+                <h2>Minha grade</h2>
+
+                <div class="grade-semanal">
+                    <div class="grade-cabecalho"></div>
+                    <div class="grade-cabecalho" th:each="dia : ${diasSemana}" th:text="${dia.rotulo}"></div>
+
+                    <th:block th:each="linha : ${linhasGrade}">
+                        <div class="grade-linha-rotulo" th:text="${linha}"></div>
+                        <div class="grade-celula" th:each="dia : ${diasSemana}">
+                            <a th:if="${gradeMapa.get(dia.name() + '_' + linha) != null}"
+                               th:href="@{/professor/disciplinas/{id}(id=${gradeMapa.get(dia.name() + '_' + linha).disciplina.id})}">
+                                <span th:text="${gradeMapa.get(dia.name() + '_' + linha).disciplina.sigla}" style="font-size:12px; font-weight:700; color:inherit;"></span>
+                                <span th:text="${gradeMapa.get(dia.name() + '_' + linha).disciplina.turma != null ? 'Turma ' + gradeMapa.get(dia.name() + '_' + linha).disciplina.turma.numero : ''}"></span>
+                            </a>
+                        </div>
+                    </th:block>
+                </div>
+            </section>
+
             <section class="painel">
                 <h2>Minhas disciplinas</h2>
 
@@ -138,7 +145,8 @@
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="d : ${minhasDisciplinas}">
+                    <tr th:each="d : ${minhasDisciplinas}" class="linha-clicavel"
+                        th:attr="data-href=@{/professor/disciplinas/{id}(id=${d.disciplina.id})}">
                         <td th:text="${d.disciplina.nome}"></td>
                         <td th:text="${d.disciplina.turma != null ? d.disciplina.turma.numero : '-'}"></td>
                         <td th:text="${d.disciplina.turma != null and d.disciplina.turma.curso != null ? d.disciplina.turma.curso.nome : '-'}"></td>
@@ -169,6 +177,8 @@
     </main>
 
 </div>
+
+<script src="/js/tabela-clicavel.js"></script>
 
 </body>
 </html>

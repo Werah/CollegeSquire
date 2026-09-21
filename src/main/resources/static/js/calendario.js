@@ -11,10 +11,20 @@ function iniciarCalendario(config) {
     var nomesMes = ['Janeiro', 'Fevereiro', 'Marco', 'Abril', 'Maio', 'Junho',
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
 
+    var diasPermitidos = config.diasPermitidos;
+
+    function diaPermitido(data) {
+        if (!diasPermitidos) {
+            return true;
+        }
+        return diasPermitidos.indexOf(data.getDay()) !== -1;
+    }
+
     var hoje = new Date();
     var mesExibido = hoje.getMonth();
     var anoExibido = hoje.getFullYear();
-    var diaSelecionado = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    var diaHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate());
+    var diaSelecionado = diaPermitido(diaHoje) ? diaHoje : null;
 
     function formatarData(d) {
         var ano = d.getFullYear();
@@ -29,6 +39,7 @@ function iniciarCalendario(config) {
 
         var primeiroDiaSemana = new Date(anoExibido, mesExibido, 1).getDay();
         var totalDias = new Date(anoExibido, mesExibido + 1, 0).getDate();
+        var dataSelecionadaFormatada = diaSelecionado ? formatarData(diaSelecionado) : null;
 
         for (var i = 0; i < primeiroDiaSemana; i++) {
             var vazio = document.createElement('div');
@@ -41,17 +52,25 @@ function iniciarCalendario(config) {
                 var celula = document.createElement('div');
                 celula.className = 'calendario-dia';
                 celula.textContent = dia;
-                celula.setAttribute('role', 'button');
-                celula.setAttribute('tabindex', '0');
 
                 var dataCelula = new Date(anoExibido, mesExibido, dia);
+                var permitido = diaPermitido(dataCelula);
 
                 if (formatarData(dataCelula) === formatarData(hoje)) {
                     celula.classList.add('hoje');
                 }
-                if (formatarData(dataCelula) === formatarData(diaSelecionado)) {
+                if (dataSelecionadaFormatada && formatarData(dataCelula) === dataSelecionadaFormatada) {
                     celula.classList.add('selecionado');
                 }
+
+                if (!permitido) {
+                    celula.classList.add('desabilitado');
+                    elGrade.appendChild(celula);
+                    return;
+                }
+
+                celula.setAttribute('role', 'button');
+                celula.setAttribute('tabindex', '0');
 
                 function selecionar() {
                     diaSelecionado = dataCelula;
@@ -72,6 +91,23 @@ function iniciarCalendario(config) {
     }
 
     function atualizarSelecao() {
+
+        if (!diaSelecionado) {
+            if (elDataInput) {
+                elDataInput.value = '';
+            }
+            if (elDataTexto) {
+                elDataTexto.textContent = 'Nenhuma aula neste mes';
+            }
+
+            renderizar();
+
+            if (typeof config.onSelecionar === 'function') {
+                config.onSelecionar(null, null);
+            }
+            return;
+        }
+
         var dataFormatada = formatarData(diaSelecionado);
 
         if (elDataInput) {
@@ -84,7 +120,7 @@ function iniciarCalendario(config) {
         renderizar();
 
         if (typeof config.onSelecionar === 'function') {
-            config.onSelecionar(dataFormatada);
+            config.onSelecionar(dataFormatada, diaSelecionado.getDay());
         }
     }
 

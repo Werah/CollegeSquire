@@ -48,7 +48,8 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="a : ${alunos}">
+                <tr th:each="a : ${alunos}" class="linha-clicavel"
+                    th:attr="data-href=@{/professor/alunos/{id}(id=${a.id}, disciplinaId=${disciplina.id})}">
                     <td th:text="${a.nome}"></td>
                     <td th:text="${a.matricula}"></td>
                     <td th:text="${a.email}"></td>
@@ -141,35 +142,43 @@
 
 </div>
 
+<script src="/js/tabela-clicavel.js"></script>
 <script th:inline="javascript">
     var frequenciasPorDia = /*[[${frequenciasPorDia}]]*/ {};
+    var diasPermitidos = /*[[${diasPermitidos}]]*/ [];
 </script>
 <script src="/js/calendario.js"></script>
 <script>
     function atualizarStatusAlunos(data) {
-        var registros = frequenciasPorDia[data] || {};
+        var registros = data ? (frequenciasPorDia[data] || {}) : {};
 
         document.querySelectorAll('.status-presenca').forEach(function (celula) {
             var alunoId = celula.getAttribute('data-aluno-id');
-            var status = registros[alunoId];
+            var lista = registros[alunoId];
 
-            celula.classList.remove('presente', 'falta');
+            celula.innerHTML = '';
 
-            if (status === true) {
-                celula.textContent = 'Presente';
-                celula.classList.add('presente');
-            } else if (status === false) {
-                celula.textContent = 'Falta';
-                celula.classList.add('falta');
-            } else {
+            if (!lista || lista.length === 0) {
                 celula.textContent = 'Sem registro';
+                return;
             }
+
+            var grupo = document.createElement('div');
+            grupo.className = 'status-presenca-lista';
+            lista.forEach(function (presente, indice) {
+                var marca = document.createElement('span');
+                marca.className = 'marca ' + (presente ? 'presente' : 'falta');
+                marca.textContent = indice + 1;
+                grupo.appendChild(marca);
+            });
+            celula.appendChild(grupo);
         });
     }
 
     if (document.getElementById('calendarioGrade')) {
         iniciarCalendario({
             dataTextoId: 'dataSelecionadaTexto',
+            diasPermitidos: diasPermitidos,
             onSelecionar: atualizarStatusAlunos
         });
     }

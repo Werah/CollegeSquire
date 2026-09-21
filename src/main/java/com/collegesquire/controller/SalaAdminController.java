@@ -1,26 +1,30 @@
 package com.collegesquire.controller;
 
+import com.collegesquire.dto.SalaDto;
 import com.collegesquire.model.Sala;
-import com.collegesquire.repository.SalaRepository;
+import com.collegesquire.model.TipoUsuario;
+import com.collegesquire.service.CrudService;
+import com.collegesquire.service.SalaService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/salas")
-public class SalaAdminController extends CadastroController<Sala> {
+public class SalaAdminController extends CadastroController<SalaDto> {
 
-    private final SalaRepository salaRepository;
+    private final SalaService salaService;
 
-    public SalaAdminController(SalaRepository salaRepository) {
-        this.salaRepository = salaRepository;
+    public SalaAdminController(SalaService salaService) {
+        this.salaService = salaService;
     }
 
     @Override
-    protected JpaRepository<Sala, Long> repositorio() {
-        return salaRepository;
+    protected CrudService<SalaDto> servico() {
+        return salaService;
     }
 
     @Override
@@ -43,30 +47,52 @@ public class SalaAdminController extends CadastroController<Sala> {
         return "Salas";
     }
 
+    @Override
+    @GetMapping
+    public String listar(HttpSession session, Model model) {
+
+        if (!autorizadoVisualizar(session)) {
+            return "redirect:/home";
+        }
+
+        model.addAttribute("salas", salaService.listarTodos());
+        model.addAttribute("tituloPagina", "Salas");
+        model.addAttribute("tipo", session.getAttribute("tipoUsuario"));
+
+        if (!model.containsAttribute("sala")) {
+            model.addAttribute("sala", new Sala());
+        }
+        if (!model.containsAttribute("logs")) {
+            model.addAttribute("logs", List.of());
+        }
+
+        return "sala-lista";
+    }
+
     @GetMapping("/novo")
-    public String novo(HttpSession session, Model model) {
+    public String novo(HttpSession session) {
 
         if (!autorizado(session)) {
             return "redirect:/home";
         }
 
-        model.addAttribute("sala", new Sala());
-        model.addAttribute("tituloPagina", "Salas");
-
-        return "sala-form";
+        return "redirect:/salas";
     }
 
     @GetMapping("/editar/{id}")
     public String editar(@PathVariable Long id, HttpSession session, Model model) {
 
-        if (!autorizado(session)) {
+        if (!autorizadoVisualizar(session)) {
             return "redirect:/home";
         }
 
-        model.addAttribute("sala", salaRepository.findById(id).orElseThrow());
+        model.addAttribute("sala", salaService.buscarParaEdicao(id));
+        model.addAttribute("logs", salaService.buscarLogsPorSala(id));
+        model.addAttribute("salas", salaService.listarTodos());
         model.addAttribute("tituloPagina", "Salas");
+        model.addAttribute("tipo", session.getAttribute("tipoUsuario"));
 
-        return "sala-form";
+        return "sala-lista";
     }
 
     @PostMapping
@@ -76,8 +102,13 @@ public class SalaAdminController extends CadastroController<Sala> {
             return "redirect:/home";
         }
 
-        salaRepository.save(sala);
+        Sala salva = salaService.salvar(sala);
 
-        return "redirect:/salas";
+        return "redirect:/salas/editar/" + salva.getId();
+    }
+
+    private boolean autorizadoVisualizar(HttpSession session) {
+        TipoUsuario tipo = (TipoUsuario) session.getAttribute("tipoUsuario");
+        return tipo == TipoUsuario.DIRECAO || tipo == TipoUsuario.PROFESSOR;
     }
 }

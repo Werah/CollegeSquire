@@ -1,29 +1,30 @@
 package com.collegesquire.controller;
 
+import com.collegesquire.dto.TurmaDto;
 import com.collegesquire.model.Turma;
 import com.collegesquire.repository.CursoRepository;
-import com.collegesquire.repository.TurmaRepository;
+import com.collegesquire.service.CrudService;
+import com.collegesquire.service.TurmaService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/turmas")
-public class TurmaAdminController extends CadastroController<Turma> {
+public class TurmaAdminController extends CadastroController<TurmaDto> {
 
-    private final TurmaRepository turmaRepository;
+    private final TurmaService turmaService;
     private final CursoRepository cursoRepository;
 
-    public TurmaAdminController(TurmaRepository turmaRepository, CursoRepository cursoRepository) {
-        this.turmaRepository = turmaRepository;
+    public TurmaAdminController(TurmaService turmaService, CursoRepository cursoRepository) {
+        this.turmaService = turmaService;
         this.cursoRepository = cursoRepository;
     }
 
     @Override
-    protected JpaRepository<Turma, Long> repositorio() {
-        return turmaRepository;
+    protected CrudService<TurmaDto> servico() {
+        return turmaService;
     }
 
     @Override
@@ -67,7 +68,7 @@ public class TurmaAdminController extends CadastroController<Turma> {
             return "redirect:/home";
         }
 
-        model.addAttribute("turma", turmaRepository.findById(id).orElseThrow());
+        model.addAttribute("turma", turmaService.buscarParaEdicao(id));
         model.addAttribute("cursos", cursoRepository.findAll());
         model.addAttribute("tituloPagina", "Turmas");
 
@@ -81,7 +82,7 @@ public class TurmaAdminController extends CadastroController<Turma> {
             return "redirect:/home";
         }
 
-        turmaRepository.save(turma);
+        turmaService.salvar(turma);
 
         return "redirect:/turmas";
     }

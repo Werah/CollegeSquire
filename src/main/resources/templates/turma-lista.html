@@ -20,7 +20,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="t : ${turmas}">
+        <tr th:each="t : ${turmas}" class="linha-clicavel" th:attr="data-href=@{/turmas/editar/{id}(id=${t.id})}">
             <td th:text="${t.numero}"></td>
             <td th:text="${t.curso != null ? t.curso.nome : '-'}"></td>
             <td th:text="${t.periodo}"></td>

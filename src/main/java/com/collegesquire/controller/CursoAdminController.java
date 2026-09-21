@@ -1,26 +1,27 @@
 package com.collegesquire.controller;
 
+import com.collegesquire.dto.CursoDto;
 import com.collegesquire.model.Curso;
-import com.collegesquire.repository.CursoRepository;
+import com.collegesquire.service.CrudService;
+import com.collegesquire.service.CursoService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/cursos")
-public class CursoAdminController extends CadastroController<Curso> {
+public class CursoAdminController extends CadastroController<CursoDto> {
 
-    private final CursoRepository cursoRepository;
+    private final CursoService cursoService;
 
-    public CursoAdminController(CursoRepository cursoRepository) {
-        this.cursoRepository = cursoRepository;
+    public CursoAdminController(CursoService cursoService) {
+        this.cursoService = cursoService;
     }
 
     @Override
-    protected JpaRepository<Curso, Long> repositorio() {
-        return cursoRepository;
+    protected CrudService<CursoDto> servico() {
+        return cursoService;
     }
 
     @Override
@@ -63,7 +64,7 @@ public class CursoAdminController extends CadastroController<Curso> {
             return "redirect:/home";
         }
 
-        model.addAttribute("curso", cursoRepository.findById(id).orElseThrow());
+        model.addAttribute("curso", cursoService.buscarParaEdicao(id));
         model.addAttribute("tituloPagina", "Cursos");
 
         return "curso-form";
@@ -76,7 +77,7 @@ public class CursoAdminController extends CadastroController<Curso> {
             return "redirect:/home";
         }
 
-        cursoRepository.save(curso);
+        cursoService.salvar(curso);
 
         return "redirect:/cursos";
     }

@@ -1,33 +1,34 @@
 package com.collegesquire.controller;
 
+import com.collegesquire.dto.DisciplinaDto;
 import com.collegesquire.model.Disciplina;
-import com.collegesquire.repository.DisciplinaRepository;
 import com.collegesquire.repository.ProfessorRepository;
 import com.collegesquire.repository.TurmaRepository;
+import com.collegesquire.service.CrudService;
+import com.collegesquire.service.DisciplinaService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/disciplinas")
-public class DisciplinaAdminController extends CadastroController<Disciplina> {
+public class DisciplinaAdminController extends CadastroController<DisciplinaDto> {
 
-    private final DisciplinaRepository disciplinaRepository;
+    private final DisciplinaService disciplinaService;
     private final TurmaRepository turmaRepository;
     private final ProfessorRepository professorRepository;
 
-    public DisciplinaAdminController(DisciplinaRepository disciplinaRepository, TurmaRepository turmaRepository,
+    public DisciplinaAdminController(DisciplinaService disciplinaService, TurmaRepository turmaRepository,
                                       ProfessorRepository professorRepository) {
-        this.disciplinaRepository = disciplinaRepository;
+        this.disciplinaService = disciplinaService;
         this.turmaRepository = turmaRepository;
         this.professorRepository = professorRepository;
     }
 
     @Override
-    protected JpaRepository<Disciplina, Long> repositorio() {
-        return disciplinaRepository;
+    protected CrudService<DisciplinaDto> servico() {
+        return disciplinaService;
     }
 
     @Override
@@ -71,7 +72,7 @@ public class DisciplinaAdminController extends CadastroController<Disciplina> {
             return "redirect:/home";
         }
 
-        model.addAttribute("disciplina", disciplinaRepository.findById(id).orElseThrow());
+        model.addAttribute("disciplina", disciplinaService.buscarParaEdicao(id));
         adicionarListas(model);
         model.addAttribute("tituloPagina", "Disciplinas");
 
@@ -85,7 +86,7 @@ public class DisciplinaAdminController extends CadastroController<Disciplina> {
             return "redirect:/home";
         }
 
-        disciplinaRepository.save(disciplina);
+        disciplinaService.salvar(disciplina);
 
         return "redirect:/disciplinas";
     }

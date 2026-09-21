@@ -1,14 +1,21 @@
 package com.collegesquire.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Table(name = "turma")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Turma {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idturma")
+    @EqualsAndHashCode.Include
     private Long id;
 
     @Column(name = "numero")
@@ -17,42 +24,10 @@ public class Turma {
     @Column(name = "periodo")
     private String periodo;
 
+    @Column(name = "periodospordia")
+    private Integer periodosPorDia = 4;
+
     @ManyToOne
     @JoinColumn(name = "idcurso")
     private Curso curso;
-
-    public Turma() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Integer getNumero() {
-        return numero;
-    }
-
-    public void setNumero(Integer numero) {
-        this.numero = numero;
-    }
-
-    public String getPeriodo() {
-        return periodo;
-    }
-
-    public void setPeriodo(String periodo) {
-        this.periodo = periodo;
-    }
-
-    public Curso getCurso() {
-        return curso;
-    }
-
-    public void setCurso(Curso curso) {
-        this.curso = curso;
-    }
 }

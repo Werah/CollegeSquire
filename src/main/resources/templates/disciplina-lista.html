@@ -21,7 +21,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="d : ${disciplinas}">
+        <tr th:each="d : ${disciplinas}" class="linha-clicavel" th:attr="data-href=@{/disciplinas/editar/{id}(id=${d.id})}">
             <td th:text="${d.nome}"></td>
             <td th:text="${d.sigla}"></td>
             <td th:text="${d.turma != null ? 'Turma ' + d.turma.numero + (d.turma.curso != null ? ' - ' + d.turma.curso.sigla : '') : '-'}"></td>

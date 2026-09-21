@@ -1,29 +1,27 @@
 package com.collegesquire.controller;
 
+import com.collegesquire.dto.ProfessorDto;
 import com.collegesquire.model.Professor;
-import com.collegesquire.repository.ProfessorRepository;
+import com.collegesquire.service.CrudService;
+import com.collegesquire.service.ProfessorService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/professores")
-public class ProfessorAdminController extends CadastroController<Professor> {
+public class ProfessorAdminController extends CadastroController<ProfessorDto> {
 
-    private final ProfessorRepository professorRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final ProfessorService professorService;
 
-    public ProfessorAdminController(ProfessorRepository professorRepository, PasswordEncoder passwordEncoder) {
-        this.professorRepository = professorRepository;
-        this.passwordEncoder = passwordEncoder;
+    public ProfessorAdminController(ProfessorService professorService) {
+        this.professorService = professorService;
     }
 
     @Override
-    protected JpaRepository<Professor, Long> repositorio() {
-        return professorRepository;
+    protected CrudService<ProfessorDto> servico() {
+        return professorService;
     }
 
     @Override
@@ -46,6 +44,20 @@ public class ProfessorAdminController extends CadastroController<Professor> {
         return "Professores";
     }
 
+    @GetMapping("/perfil/{id}")
+    public String perfil(@PathVariable Long id, HttpSession session, Model model) {
+
+        if (!autorizado(session)) {
+            return "redirect:/home";
+        }
+
+        model.addAttribute("professor", professorService.buscarDto(id));
+        model.addAttribute("disciplinas", professorService.buscarDisciplinasLecionadas(id));
+        model.addAttribute("tituloPagina", "Professores");
+
+        return "professor-perfil";
+    }
+
     @GetMapping("/novo")
     public String novo(HttpSession session, Model model) {
 
@@ -66,10 +78,7 @@ public class ProfessorAdminController extends CadastroController<Professor> {
             return "redirect:/home";
         }
 
-        Professor professor = professorRepository.findById(id).orElseThrow();
-        professor.setSenha(null);
-
-        model.addAttribute("professor", professor);
+        model.addAttribute("professor", professorService.buscarParaEdicao(id));
         model.addAttribute("tituloPagina", "Professores");
 
         return "professor-form";
@@ -82,22 +91,7 @@ public class ProfessorAdminController extends CadastroController<Professor> {
             return "redirect:/home";
         }
 
-        if (professorForm.getId() != null) {
-            Professor existente = professorRepository.findById(professorForm.getId()).orElseThrow();
-            existente.setNome(professorForm.getNome());
-            existente.setCpf(professorForm.getCpf());
-            existente.setEndereco(professorForm.getEndereco());
-            existente.setTelefone(professorForm.getTelefone());
-            existente.setEmail(professorForm.getEmail());
-            existente.setRegistro(professorForm.getRegistro());
-            if (professorForm.getSenha() != null && !professorForm.getSenha().isBlank()) {
-                existente.setSenha(passwordEncoder.encode(professorForm.getSenha()));
-            }
-            professorRepository.save(existente);
-        } else {
-            professorForm.setSenha(passwordEncoder.encode(professorForm.getSenha()));
-            professorRepository.save(professorForm);
-        }
+        professorService.salvar(professorForm);
 
         return "redirect:/professores";
     }

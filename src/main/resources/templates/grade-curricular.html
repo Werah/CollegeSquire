@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/admin-layout}" lang="pt-br">
+<body>
+
+<div layout:fragment="conteudo">
+
+    <div class="admin-toolbar">
+        <h2>Grade curricular</h2>
+    </div>
+
+    <form class="form-inline" method="get" th:action="@{/grades}" style="margin-bottom: 24px;">
+        <div class="input-group">
+            <label>Curso</label>
+            <select name="cursoId" onchange="this.form.submit()">
+                <option value="">Selecione...</option>
+                <option th:each="c : ${cursos}" th:value="${c.id}" th:text="${c.nome}"
+                        th:selected="${cursoId != null and cursoId == c.id}"></option>
+            </select>
+        </div>
+
+        <div class="input-group" th:if="${cursoId != null}">
+            <label>Turma</label>
+            <select name="turmaId" onchange="this.form.submit()">
+                <option value="">Selecione...</option>
+                <option th:each="t : ${turmas}" th:value="${t.id}"
+                        th:text="'Turma ' + ${t.numero} + (${t.periodo} != null ? ' - ' + ${t.periodo} : '')"
+                        th:selected="${turmaId != null and turmaId == t.id}"></option>
+            </select>
+        </div>
+
+        <noscript><button type="submit" class="btn btn-secundario">Continuar</button></noscript>
+    </form>
+
+    <div th:if="${cursoId == null}">
+        <p class="tabela-vazia">Selecione um curso para comecar.</p>
+    </div>
+
+    <div th:if="${cursoId != null and turmaId == null}">
+        <p class="tabela-vazia">Selecione uma turma para ver a grade.</p>
+    </div>
+
+    <div th:if="${cursoId != null and turmaId != null}">
+
+        <form method="post" th:action="@{/grades/periodos}" class="form-inline" style="margin-bottom: 20px;">
+            <input type="hidden" name="cursoId" th:value="${cursoId}">
+            <input type="hidden" name="turmaId" th:value="${turmaId}">
+            <div class="input-group">
+                <label>Quantidade de aulas por dia</label>
+                <input type="number" name="periodos" min="1" max="12" th:value="${periodosPorDia}">
+            </div>
+            <button type="submit" class="btn btn-secundario">Atualizar linhas</button>
+        </form>
+
+        <form method="post" th:action="@{/grades/salvar}">
+            <input type="hidden" name="cursoId" th:value="${cursoId}">
+            <input type="hidden" name="turmaId" th:value="${turmaId}">
+
+            <div class="tabela-scroll">
+                <table class="tabela-grade tabela-grade-curricular">
+                    <thead>
+                    <tr>
+                        <th class="col-linha"></th>
+                        <th th:each="dia : ${diasSemana}" th:text="${dia.rotulo}"></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="linha : ${linhas}">
+                        <td class="col-linha" th:text="${linha}"></td>
+                        <td th:each="dia : ${diasSemana}">
+                            <select th:name="'celula_' + ${dia.name()} + '_' + ${linha}">
+                                <option value="">-</option>
+                                <option th:each="d : ${disciplinasDaTurma}" th:value="${d.id}" th:text="${d.sigla}"
+                                        th:selected="${celulas.get(dia.name() + '_' + linha) != null and celulas.get(dia.name() + '_' + linha) == d.id}"></option>
+                            </select>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="tabela-vazia" th:if="${#lists.isEmpty(disciplinasDaTurma)}">
+                Nenhuma disciplina cadastrada para esta turma ainda. Cadastre disciplinas antes de montar a grade.
+            </p>
+
+            <div class="botoes" style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primario" th:if="${not #lists.isEmpty(disciplinasDaTurma)}">
+                    Salvar grade
+                </button>
+            </div>
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+</html>

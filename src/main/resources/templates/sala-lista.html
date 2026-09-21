@@ -5,33 +5,100 @@
 
 <div layout:fragment="conteudo">
 
-    <div class="admin-toolbar">
-        <h2>Salas cadastradas</h2>
-        <a class="btn btn-primario" th:href="@{/salas/novo}">Inserir</a>
+    <div class="registro-foco" th:if="${sala.id != null}">
+        <span>Sala em foco</span>
+        <strong th:text="'Sala ' + ${sala.numero} + (${sala.predio} != null ? ' - Predio ' + ${sala.predio} : '')"></strong>
+        <p th:if="${sala.descricao != null and not #strings.isEmpty(sala.descricao)}" th:text="${sala.descricao}"></p>
     </div>
 
-    <table class="tabela-grade" th:if="${not #lists.isEmpty(salas)}">
-        <thead>
-        <tr>
-            <th>Numero</th>
-            <th>Predio</th>
-            <th class="col-acoes"></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="s : ${salas}">
-            <td th:text="${s.numero}"></td>
-            <td th:text="${s.predio}"></td>
-            <td class="col-acoes">
-                <a class="btn-icone" th:href="@{/salas/editar/{id}(id=${s.id})}" title="Editar">&#9998;</a>
-                <a class="btn-icone excluir" th:href="@{/salas/deletar/{id}(id=${s.id})}" title="Excluir"
-                   onclick="return confirm('Excluir este registro?')">&#10006;</a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <div class="lancar-shell">
 
-    <p class="tabela-vazia" th:if="${#lists.isEmpty(salas)}">Nenhuma sala cadastrada ainda.</p>
+        <div class="lancar-config">
+
+            <div class="admin-form" style="margin-bottom: 28px;" th:if="${tipo != null and tipo.name() == 'DIRECAO'}">
+                <h2 th:text="${sala.id != null ? 'Editar sala' : 'Nova sala'}"></h2>
+
+                <form th:action="@{/salas}" th:object="${sala}" method="post">
+                    <input type="hidden" th:field="*{id}">
+                    <div class="input-group">
+                        <label>Numero</label>
+                        <input type="number" th:field="*{numero}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Predio</label>
+                        <input type="number" th:field="*{predio}" required>
+                    </div>
+                    <div class="input-group">
+                        <label>Descricao</label>
+                        <input type="text" th:field="*{descricao}">
+                    </div>
+                    <div class="botoes">
+                        <button type="submit" class="btn btn-primario">Salvar</button>
+                        <a class="btn btn-secundario" th:if="${sala.id != null}" th:href="@{/salas}">Nova sala</a>
+                    </div>
+                </form>
+            </div>
+
+            <div class="admin-toolbar">
+                <h2>Salas cadastradas</h2>
+            </div>
+
+            <table class="tabela-grade" th:if="${not #lists.isEmpty(salas)}">
+                <thead>
+                <tr>
+                    <th>Numero</th>
+                    <th>Predio</th>
+                    <th>Descricao</th>
+                    <th class="col-acoes" th:if="${tipo != null and tipo.name() == 'DIRECAO'}"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${salas}" class="linha-clicavel" th:attr="data-href=@{/salas/editar/{id}(id=${s.id})}">
+                    <td th:text="${s.numero}"></td>
+                    <td th:text="${s.predio}"></td>
+                    <td th:text="${s.descricao}"></td>
+                    <td class="col-acoes" th:if="${tipo != null and tipo.name() == 'DIRECAO'}">
+                        <a class="btn-icone" th:href="@{/salas/editar/{id}(id=${s.id})}" title="Editar">&#9998;</a>
+                        <a class="btn-icone excluir" th:href="@{/salas/deletar/{id}(id=${s.id})}" title="Excluir"
+                           onclick="return confirm('Excluir este registro?')">&#10006;</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="tabela-vazia" th:if="${#lists.isEmpty(salas)}">Nenhuma sala cadastrada ainda.</p>
+
+        </div>
+
+        <div class="lancar-alunos">
+            <h2>Log de utilizacao</h2>
+
+            <p class="tabela-vazia" th:if="${sala.id == null}">
+                Selecione uma sala para ver o historico de uso.
+            </p>
+
+            <table class="tabela-grade" th:if="${sala.id != null and not #lists.isEmpty(logs)}">
+                <thead>
+                <tr>
+                    <th>Professor</th>
+                    <th>Data/Hora</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="log : ${logs}">
+                    <td th:text="${log.professor != null ? log.professor.nome : '-'}"></td>
+                    <td th:text="${#temporals.format(log.dataHora, 'dd/MM/yyyy HH:mm')}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="tabela-vazia" th:if="${sala.id != null and #lists.isEmpty(logs)}">
+                Nenhum registro de uso ainda. No futuro, este log sera preenchido
+                automaticamente pela leitura do RFID do professor.
+            </p>
+        </div>
+
+    </div>
 
 </div>
 

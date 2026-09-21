@@ -1,36 +1,34 @@
 package com.collegesquire.controller;
 
+import com.collegesquire.dto.AlunoDto;
 import com.collegesquire.model.Aluno;
-import com.collegesquire.repository.AlunoRepository;
 import com.collegesquire.repository.CursoRepository;
 import com.collegesquire.repository.TurmaRepository;
+import com.collegesquire.service.AlunoService;
+import com.collegesquire.service.CrudService;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
 @RequestMapping("/alunos")
-public class AlunoAdminController extends CadastroController<Aluno> {
+public class AlunoAdminController extends CadastroController<AlunoDto> {
 
-    private final AlunoRepository alunoRepository;
+    private final AlunoService alunoService;
     private final CursoRepository cursoRepository;
     private final TurmaRepository turmaRepository;
-    private final PasswordEncoder passwordEncoder;
 
-    public AlunoAdminController(AlunoRepository alunoRepository, CursoRepository cursoRepository,
-                                 TurmaRepository turmaRepository, PasswordEncoder passwordEncoder) {
-        this.alunoRepository = alunoRepository;
+    public AlunoAdminController(AlunoService alunoService, CursoRepository cursoRepository,
+                                 TurmaRepository turmaRepository) {
+        this.alunoService = alunoService;
         this.cursoRepository = cursoRepository;
         this.turmaRepository = turmaRepository;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    protected JpaRepository<Aluno, Long> repositorio() {
-        return alunoRepository;
+    protected CrudService<AlunoDto> servico() {
+        return alunoService;
     }
 
     @Override
@@ -51,6 +49,20 @@ public class AlunoAdminController extends CadastroController<Aluno> {
     @Override
     protected String tituloPagina() {
         return "Alunos";
+    }
+
+    @GetMapping("/perfil/{id}")
+    public String perfil(@PathVariable Long id, HttpSession session, Model model) {
+
+        if (!autorizado(session)) {
+            return "redirect:/home";
+        }
+
+        model.addAttribute("aluno", alunoService.buscarDto(id));
+        model.addAttribute("resumoDisciplinas", alunoService.montarResumoDisciplinas(id));
+        model.addAttribute("tituloPagina", "Alunos");
+
+        return "aluno-perfil";
     }
 
     @GetMapping("/novo")
@@ -75,10 +87,7 @@ public class AlunoAdminController extends CadastroController<Aluno> {
             return "redirect:/home";
         }
 
-        Aluno aluno = alunoRepository.findById(id).orElseThrow();
-        aluno.setSenha(null);
-
-        model.addAttribute("aluno", aluno);
+        model.addAttribute("aluno", alunoService.buscarParaEdicao(id));
         model.addAttribute("cursos", cursoRepository.findAll());
         model.addAttribute("turmas", turmaRepository.findAll());
         model.addAttribute("tituloPagina", "Alunos");
@@ -93,24 +102,7 @@ public class AlunoAdminController extends CadastroController<Aluno> {
             return "redirect:/home";
         }
 
-        if (alunoForm.getId() != null) {
-            Aluno existente = alunoRepository.findById(alunoForm.getId()).orElseThrow();
-            existente.setNome(alunoForm.getNome());
-            existente.setCpf(alunoForm.getCpf());
-            existente.setEndereco(alunoForm.getEndereco());
-            existente.setTelefone(alunoForm.getTelefone());
-            existente.setEmail(alunoForm.getEmail());
-            existente.setMatricula(alunoForm.getMatricula());
-            existente.setCurso(alunoForm.getCurso());
-            existente.setTurma(alunoForm.getTurma());
-            if (alunoForm.getSenha() != null && !alunoForm.getSenha().isBlank()) {
-                existente.setSenha(passwordEncoder.encode(alunoForm.getSenha()));
-            }
-            alunoRepository.save(existente);
-        } else {
-            alunoForm.setSenha(passwordEncoder.encode(alunoForm.getSenha()));
-            alunoRepository.save(alunoForm);
-        }
+        alunoService.salvar(alunoForm);
 
         return "redirect:/alunos";
     }

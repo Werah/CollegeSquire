@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'College Squire - ' + ${professor.nome}">College Squire</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <div class="fundo-padrao"></div>
+
+    <header class="app-header">
+        <div th:replace="~{fragments/brasao :: brasao}"></div>
+        <div class="marca">
+            <strong th:text="${professor.nome}"></strong>
+            <span th:text="${professor.registro}"></span>
+        </div>
+        <div class="usuario">
+            <a class="btn-sair" th:href="@{/professores/editar/{id}(id=${professor.id})}">Editar cadastro</a>
+            <a class="btn-sair" th:href="@{/professores}">Voltar</a>
+        </div>
+    </header>
+
+    <main class="app-content">
+
+        <section class="painel">
+            <h2>Dados cadastrais</h2>
+            <div class="perfil-info">
+                <div><span>Registro</span><strong th:text="${professor.registro}"></strong></div>
+                <div><span>CPF</span><strong th:text="${professor.cpf}"></strong></div>
+                <div><span>E-mail</span><strong th:text="${professor.email}"></strong></div>
+                <div><span>Telefone</span><strong th:text="${professor.telefone}"></strong></div>
+                <div><span>Endereco</span><strong th:text="${professor.endereco}"></strong></div>
+            </div>
+        </section>
+
+        <section class="painel">
+            <h2>Disciplinas que leciona</h2>
+
+            <table class="tabela-grade" th:if="${not #lists.isEmpty(disciplinas)}">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Sigla</th>
+                    <th>Turma</th>
+                    <th>Curso</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${disciplinas}">
+                    <td th:text="${d.nome}"></td>
+                    <td th:text="${d.sigla}"></td>
+                    <td th:text="${d.turma != null ? 'Turma ' + d.turma.numero : '-'}"></td>
+                    <td th:text="${d.turma != null and d.turma.curso != null ? d.turma.curso.nome : '-'}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="tabela-vazia" th:if="${#lists.isEmpty(disciplinas)}">
+                Nenhuma disciplina atribuida a este professor.
+            </p>
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

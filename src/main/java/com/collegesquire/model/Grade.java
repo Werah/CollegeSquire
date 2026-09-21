@@ -1,83 +1,39 @@
 package com.collegesquire.model;
 
 import jakarta.persistence.*;
+import lombok.*;
 
-import java.time.LocalTime;
-
+/**
+ * Uma celula da grade curricular semanal de uma turma: em qual dia da
+ * semana e em qual linha (periodo/aula) uma disciplina acontece.
+ */
 @Entity
-@Table(name = "grade")
+@Table(name = "grade", uniqueConstraints = @UniqueConstraint(columnNames = {"idturma", "diasemana", "linha"}))
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Grade {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idgrade")
+    @EqualsAndHashCode.Include
     private Long id;
-
-    @Column(name = "diasemana")
-    private String diaSemana;
-
-    @Column(name = "horainicio")
-    private LocalTime horaInicio;
-
-    @Column(name = "horafim")
-    private LocalTime horaFim;
 
     @ManyToOne
     @JoinColumn(name = "idturma")
     private Turma turma;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "diasemana")
+    private DiaSemana diaSemana;
+
+    @Column(name = "linha")
+    private Integer linha;
+
     @ManyToOne
-    @JoinColumn(name = "idsala")
-    private Sala sala;
-
-    public Grade() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getDiaSemana() {
-        return diaSemana;
-    }
-
-    public void setDiaSemana(String diaSemana) {
-        this.diaSemana = diaSemana;
-    }
-
-    public LocalTime getHoraInicio() {
-        return horaInicio;
-    }
-
-    public void setHoraInicio(LocalTime horaInicio) {
-        this.horaInicio = horaInicio;
-    }
-
-    public LocalTime getHoraFim() {
-        return horaFim;
-    }
-
-    public void setHoraFim(LocalTime horaFim) {
-        this.horaFim = horaFim;
-    }
-
-    public Turma getTurma() {
-        return turma;
-    }
-
-    public void setTurma(Turma turma) {
-        this.turma = turma;
-    }
-
-    public Sala getSala() {
-        return sala;
-    }
-
-    public void setSala(Sala sala) {
-        this.sala = sala;
-    }
+    @JoinColumn(name = "iddisciplina")
+    private Disciplina disciplina;
 }

@@ -103,28 +103,33 @@
 
 <script th:inline="javascript">
     var frequenciasPorDia = /*[[${frequenciasPorDia}]]*/ {};
+    var diasPermitidos = /*[[${diasPermitidos}]]*/ [];
 </script>
 <script src="/js/calendario.js"></script>
 <script>
     function atualizarStatusAluno(data) {
-        var status = frequenciasPorDia[data];
         var el = document.getElementById('statusPresenca');
+        var lista = data ? (frequenciasPorDia[data] || []) : [];
 
-        el.classList.remove('presente', 'falta');
-
-        if (status === true) {
-            el.textContent = 'Presente';
-            el.classList.add('presente');
-        } else if (status === false) {
-            el.textContent = 'Falta';
-            el.classList.add('falta');
-        } else {
+        if (lista.length === 0) {
+            el.className = 'status-grande';
             el.textContent = 'Sem registro';
+            return;
         }
+
+        el.className = 'status-presenca-lista';
+        el.innerHTML = '';
+        lista.forEach(function (presente, indice) {
+            var marca = document.createElement('span');
+            marca.className = 'marca ' + (presente ? 'presente' : 'falta');
+            marca.textContent = indice + 1;
+            el.appendChild(marca);
+        });
     }
 
     iniciarCalendario({
         dataTextoId: 'dataSelecionadaTexto',
+        diasPermitidos: diasPermitidos,
         onSelecionar: atualizarStatusAluno
     });
 </script>

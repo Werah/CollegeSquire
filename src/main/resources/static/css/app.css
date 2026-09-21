@@ -153,6 +153,19 @@
     border-top: 1px solid var(--cinza-200);
 }
 
+.linha-clicavel {
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.linha-clicavel:hover {
+    background: var(--azul-200);
+}
+
+.linha-clicavel:hover td:first-child {
+    box-shadow: inset 3px 0 0 var(--azul-600);
+}
+
 .tabela-vazia {
     padding: 24px;
     text-align: center;
@@ -286,4 +299,71 @@
     color: var(--azul-800);
     font-family: "Cinzel", Georgia, serif;
     font-size: 15px;
+}
+
+.grade-semanal {
+    display: grid;
+    grid-template-columns: 48px repeat(7, 1fr);
+    gap: 1px;
+    background: var(--cinza-200);
+    border: 1px solid var(--cinza-200);
+    border-radius: var(--raio);
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.grade-semanal .grade-cabecalho {
+    background: var(--cinza-100);
+    color: var(--cinza-700);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 8px 4px;
+}
+
+.grade-semanal .grade-linha-rotulo {
+    background: var(--cinza-050);
+    color: var(--cinza-500);
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grade-semanal .grade-celula {
+    background: var(--branco);
+    min-height: 52px;
+    padding: 4px;
+    display: flex;
+    align-items: stretch;
+}
+
+.grade-semanal .grade-celula a {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 4px;
+    border-radius: 6px;
+    background: var(--azul-050);
+    color: var(--azul-800);
+    font-size: 11px;
+    font-weight: 600;
+    text-align: center;
+    transition: 0.12s ease;
+}
+
+.grade-semanal .grade-celula a:hover {
+    background: var(--azul-100);
+    color: var(--azul-900);
+}
+
+.grade-semanal .grade-celula a span {
+    font-size: 10px;
+    font-weight: 500;
+    color: var(--cinza-500);
 }

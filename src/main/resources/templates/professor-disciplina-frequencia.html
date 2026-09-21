@@ -31,7 +31,12 @@
 
         <section class="painel">
 
-            <form th:action="@{/professor/disciplinas/{id}/frequencia(id=${disciplina.id})}" method="post">
+            <p class="tabela-vazia" th:if="${maxPeriodos == 0}">
+                Esta disciplina ainda nao tem nenhum horario definido na grade curricular.
+                Peca para a coordenacao cadastrar a grade da turma antes de lancar faltas.
+            </p>
+
+            <form th:if="${maxPeriodos > 0}" th:action="@{/professor/disciplinas/{id}/frequencia(id=${disciplina.id})}" method="post">
 
                 <div class="lancar-shell">
 
@@ -54,6 +59,7 @@
                         <div class="calendario-data-selecionada">
                             Data selecionada
                             <strong id="dataSelecionadaTexto"></strong>
+                            <div id="infoPeriodos" style="margin-top:6px; font-size:12.5px; color: var(--cinza-500);"></div>
                         </div>
                     </div>
 
@@ -65,7 +71,7 @@
                             <tr>
                                 <th>Nome</th>
                                 <th>Matricula</th>
-                                <th>Presente</th>
+                                <th>Presenca</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -73,7 +79,13 @@
                                 <td th:text="${a.nome}"></td>
                                 <td th:text="${a.matricula}"></td>
                                 <td class="col-check">
-                                    <input type="checkbox" name="presentes" th:value="${a.id}" checked>
+                                    <div class="check-periodo-grupo">
+                                        <span th:each="p : ${periodos}">
+                                            <span class="periodo-numero" th:text="${p}"></span>
+                                            <input type="checkbox" class="check-periodo" th:attr="data-periodo=${p}"
+                                                   name="presentes" th:value="${a.id} + ':' + ${p}" checked>
+                                        </span>
+                                    </div>
                                 </td>
                             </tr>
                             </tbody>
@@ -94,11 +106,35 @@
 
 </div>
 
-<script src="/js/calendario.js"></script>
-<script>
+<script th:if="${maxPeriodos > 0}" th:inline="javascript">
+    var diasPermitidos = /*[[${diasPermitidos}]]*/ [];
+    var periodosPorDiaSemana = /*[[${periodosPorDiaSemana}]]*/ {};
+</script>
+<script th:if="${maxPeriodos > 0}" src="/js/calendario.js"></script>
+<script th:if="${maxPeriodos > 0}">
+    function atualizarPeriodosVisiveis(data, diaSemana) {
+        var totalHoje = (diaSemana !== null && diaSemana !== undefined) ? (periodosPorDiaSemana[diaSemana] || 0) : 0;
+        var info = document.getElementById('infoPeriodos');
+
+        info.textContent = totalHoje > 0
+            ? (totalHoje + (totalHoje === 1 ? ' aula neste dia' : ' aulas seguidas neste dia'))
+            : 'Nenhuma aula neste dia';
+
+        document.querySelectorAll('.check-periodo').forEach(function (checkbox) {
+            var periodo = parseInt(checkbox.getAttribute('data-periodo'), 10);
+            var envolvido = periodo <= totalHoje;
+            var item = checkbox.closest('span');
+
+            item.hidden = !envolvido;
+            checkbox.disabled = !envolvido;
+        });
+    }
+
     iniciarCalendario({
         dataInputId: 'dataSelecionada',
-        dataTextoId: 'dataSelecionadaTexto'
+        dataTextoId: 'dataSelecionadaTexto',
+        diasPermitidos: diasPermitidos,
+        onSelecionar: atualizarPeriodosVisiveis
     });
 </script>
 

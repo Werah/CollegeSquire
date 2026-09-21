@@ -11,9 +11,10 @@ public interface FrequenciaRepository extends JpaRepository<Frequencia, Long> {
 
     List<Frequencia> findByAlunoIdOrderByDisciplinaIdAsc(Long alunoId);
 
-    List<Frequencia> findByDisciplinaIdAndAlunoId(Long disciplinaId, Long alunoId);
+    List<Frequencia> findByDisciplinaIdAndAlunoIdOrderByDataAscNumeroAulaAsc(Long disciplinaId, Long alunoId);
 
-    List<Frequencia> findByDisciplinaId(Long disciplinaId);
+    List<Frequencia> findByDisciplinaIdOrderByDataAscNumeroAulaAsc(Long disciplinaId);
 
-    Optional<Frequencia> findByDisciplinaIdAndAlunoIdAndData(Long disciplinaId, Long alunoId, LocalDate data);
+    Optional<Frequencia> findByDisciplinaIdAndAlunoIdAndDataAndNumeroAula(Long disciplinaId, Long alunoId,
+                                                                           LocalDate data, Integer numeroAula);
 }

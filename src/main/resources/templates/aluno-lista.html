@@ -22,7 +22,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="a : ${alunos}">
+        <tr th:each="a : ${alunos}" class="linha-clicavel" th:attr="data-href=@{/alunos/perfil/{id}(id=${a.id})}">
             <td th:text="${a.nome}"></td>
             <td th:text="${a.matricula}"></td>
             <td th:text="${a.curso != null ? a.curso.nome : '-'}"></td>

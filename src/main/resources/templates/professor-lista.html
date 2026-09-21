@@ -20,7 +20,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="p : ${professores}">
+        <tr th:each="p : ${professores}" class="linha-clicavel" th:attr="data-href=@{/professores/perfil/{id}(id=${p.id})}">
             <td th:text="${p.nome}"></td>
             <td th:text="${p.registro}"></td>
             <td th:text="${p.email}"></td>

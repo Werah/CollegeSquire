@@ -1,14 +1,20 @@
 package com.collegesquire.controller;
 
-import com.collegesquire.model.*;
-import com.collegesquire.repository.*;
+import com.collegesquire.model.Aluno;
+import com.collegesquire.model.DiaSemana;
+import com.collegesquire.model.Disciplina;
+import com.collegesquire.model.TipoUsuario;
+import com.collegesquire.service.AlunoService;
+import com.collegesquire.service.DisciplinaService;
+import com.collegesquire.service.FrequenciaService;
+import com.collegesquire.service.GradeService;
+import com.collegesquire.service.NotasService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,19 +22,22 @@ import java.util.Map;
 @RequestMapping("/professor")
 public class ProfessorController {
 
-    private final DisciplinaRepository disciplinaRepository;
-    private final AlunoRepository alunoRepository;
-    private final NotasRepository notasRepository;
-    private final FrequenciaRepository frequenciaRepository;
+    private final DisciplinaService disciplinaService;
+    private final AlunoService alunoService;
+    private final NotasService notasService;
+    private final FrequenciaService frequenciaService;
+    private final GradeService gradeService;
 
-    public ProfessorController(DisciplinaRepository disciplinaRepository,
-                                AlunoRepository alunoRepository,
-                                NotasRepository notasRepository,
-                                FrequenciaRepository frequenciaRepository) {
-        this.disciplinaRepository = disciplinaRepository;
-        this.alunoRepository = alunoRepository;
-        this.notasRepository = notasRepository;
-        this.frequenciaRepository = frequenciaRepository;
+    public ProfessorController(DisciplinaService disciplinaService,
+                                AlunoService alunoService,
+                                NotasService notasService,
+                                FrequenciaService frequenciaService,
+                                GradeService gradeService) {
+        this.disciplinaService = disciplinaService;
+        this.alunoService = alunoService;
+        this.notasService = notasService;
+        this.frequenciaService = frequenciaService;
+        this.gradeService = gradeService;
     }
 
     @GetMapping("/disciplinas/{id}")
@@ -39,10 +48,11 @@ public class ProfessorController {
             return "redirect:/home";
         }
 
-        model.addAttribute("disciplina", disciplina);
+        model.addAttribute("disciplina", disciplinaService.paraDto(disciplina));
         model.addAttribute("alunos", alunosDaTurma(disciplina));
-        model.addAttribute("notas", notasRepository.findByDisciplinaId(id));
-        model.addAttribute("frequenciasPorDia", frequenciasPorDia(id));
+        model.addAttribute("notas", notasService.listarDtoPorDisciplina(id));
+        model.addAttribute("frequenciasPorDia", frequenciaService.mapaPorDiaETurma(id));
+        model.addAttribute("diasPermitidos", List.copyOf(gradeService.periodosPorDiaSemana(id).keySet()));
 
         return "professor-disciplina";
     }
@@ -55,7 +65,7 @@ public class ProfessorController {
             return "redirect:/home";
         }
 
-        model.addAttribute("disciplina", disciplina);
+        model.addAttribute("disciplina", disciplinaService.paraDto(disciplina));
         model.addAttribute("alunos", alunosDaTurma(disciplina));
 
         return "professor-disciplina-notas";
@@ -75,26 +85,7 @@ public class ProfessorController {
             return "redirect:/home";
         }
 
-        for (int i = 0; i < alunoIds.size(); i++) {
-            String valorTexto = valores.get(i);
-            if (valorTexto == null || valorTexto.isBlank()) {
-                continue;
-            }
-
-            Long alunoId = alunoIds.get(i);
-            if (!alunoNaTurma(alunoId, disciplina)) {
-                continue;
-            }
-
-            Notas notas = new Notas();
-            notas.setAluno(alunoRepository.findById(alunoId).orElseThrow());
-            notas.setDisciplina(disciplina);
-            notas.setDescricao(descricao);
-            notas.setTipo(tipo);
-            notas.setPeso(peso);
-            notas.setValor(Double.valueOf(valorTexto.replace(",", ".")));
-            notasRepository.save(notas);
-        }
+        notasService.lancarNotas(disciplina, alunosDaTurma(disciplina), descricao, tipo, peso, alunoIds, valores);
 
         return "redirect:/professor/disciplinas/" + id;
     }
@@ -107,8 +98,15 @@ public class ProfessorController {
             return "redirect:/home";
         }
 
-        model.addAttribute("disciplina", disciplina);
+        Map<Integer, Integer> periodosPorDiaSemana = gradeService.periodosPorDiaSemana(id);
+        int maxPeriodos = periodosPorDiaSemana.values().stream().mapToInt(Integer::intValue).max().orElse(0);
+
+        model.addAttribute("disciplina", disciplinaService.paraDto(disciplina));
         model.addAttribute("alunos", alunosDaTurma(disciplina));
+        model.addAttribute("diasPermitidos", List.copyOf(periodosPorDiaSemana.keySet()));
+        model.addAttribute("periodosPorDiaSemana", periodosPorDiaSemana);
+        model.addAttribute("maxPeriodos", maxPeriodos);
+        model.addAttribute("periodos", maxPeriodos > 0 ? rangeDe1Ate(maxPeriodos) : List.of());
 
         return "professor-disciplina-frequencia";
     }
@@ -116,7 +114,7 @@ public class ProfessorController {
     @PostMapping("/disciplinas/{id}/frequencia")
     public String lancarFrequencia(@PathVariable Long id,
                                     @RequestParam String data,
-                                    @RequestParam(required = false) List<Long> presentes,
+                                    @RequestParam(required = false) List<String> presentes,
                                     HttpSession session) {
 
         Disciplina disciplina = disciplinaAutorizada(id, session);
@@ -125,18 +123,10 @@ public class ProfessorController {
         }
 
         LocalDate dataAula = LocalDate.parse(data);
-        List<Long> idsPresentes = presentes != null ? presentes : List.of();
+        int totalPeriodos = gradeService.contarPeriodos(id, DiaSemana.deLocalDate(dataAula));
 
-        for (Aluno aluno : alunosDaTurma(disciplina)) {
-            Frequencia frequencia = frequenciaRepository
-                    .findByDisciplinaIdAndAlunoIdAndData(id, aluno.getId(), dataAula)
-                    .orElseGet(Frequencia::new);
-
-            frequencia.setAluno(aluno);
-            frequencia.setDisciplina(disciplina);
-            frequencia.setData(dataAula);
-            frequencia.setPresente(idsPresentes.contains(aluno.getId()));
-            frequenciaRepository.save(frequencia);
+        if (totalPeriodos > 0) {
+            frequenciaService.lancarFrequencia(disciplina, alunosDaTurma(disciplina), dataAula, totalPeriodos, presentes);
         }
 
         return "redirect:/professor/disciplinas/" + id;
@@ -153,12 +143,11 @@ public class ProfessorController {
             return "redirect:/home";
         }
 
-        Aluno aluno = alunoRepository.findById(id).orElseThrow();
-
-        model.addAttribute("aluno", aluno);
-        model.addAttribute("disciplina", disciplina);
-        model.addAttribute("notas", notasRepository.findByDisciplinaIdAndAlunoId(disciplinaId, id));
-        model.addAttribute("frequenciasPorDia", frequenciasPorDiaDoAluno(disciplinaId, id));
+        model.addAttribute("aluno", alunoService.buscarDto(id));
+        model.addAttribute("disciplina", disciplinaService.paraDto(disciplina));
+        model.addAttribute("notas", notasService.listarDtoPorDisciplinaEAluno(disciplinaId, id));
+        model.addAttribute("frequenciasPorDia", frequenciaService.mapaPorDiaDoAluno(disciplinaId, id));
+        model.addAttribute("diasPermitidos", List.copyOf(gradeService.periodosPorDiaSemana(disciplinaId).keySet()));
 
         return "professor-aluno";
     }
@@ -172,7 +161,7 @@ public class ProfessorController {
             return null;
         }
 
-        Disciplina disciplina = disciplinaRepository.findById(disciplinaId).orElse(null);
+        Disciplina disciplina = disciplinaService.buscarEntidade(disciplinaId).orElse(null);
         if (disciplina == null || disciplina.getProfessor() == null
                 || !disciplina.getProfessor().getId().equals(usuarioId)) {
             return null;
@@ -183,7 +172,7 @@ public class ProfessorController {
 
     private List<Aluno> alunosDaTurma(Disciplina disciplina) {
         return disciplina.getTurma() != null
-                ? alunoRepository.findByTurmaId(disciplina.getTurma().getId())
+                ? alunoService.listarPorTurma(disciplina.getTurma().getId())
                 : List.of();
     }
 
@@ -192,35 +181,7 @@ public class ProfessorController {
                 .anyMatch(aluno -> aluno.getId().equals(alunoId));
     }
 
-    /**
-     * Mapa "data (yyyy-MM-dd)" -> "id do aluno" -> presente, usado pelo
-     * calendario de frequencia lancada (um dia, todos os alunos da turma).
-     */
-    private Map<String, Map<Long, Boolean>> frequenciasPorDia(Long disciplinaId) {
-
-        Map<String, Map<Long, Boolean>> resultado = new LinkedHashMap<>();
-
-        for (Frequencia frequencia : frequenciaRepository.findByDisciplinaId(disciplinaId)) {
-            resultado
-                    .computeIfAbsent(frequencia.getData().toString(), chave -> new LinkedHashMap<>())
-                    .put(frequencia.getAluno().getId(), frequencia.getPresente());
-        }
-
-        return resultado;
-    }
-
-    /**
-     * Mapa "data (yyyy-MM-dd)" -> presente, usado pelo calendario no perfil
-     * de um unico aluno.
-     */
-    private Map<String, Boolean> frequenciasPorDiaDoAluno(Long disciplinaId, Long alunoId) {
-
-        Map<String, Boolean> resultado = new LinkedHashMap<>();
-
-        for (Frequencia frequencia : frequenciaRepository.findByDisciplinaIdAndAlunoId(disciplinaId, alunoId)) {
-            resultado.put(frequencia.getData().toString(), frequencia.getPresente());
-        }
-
-        return resultado;
+    private List<Integer> rangeDe1Ate(int n) {
+        return java.util.stream.IntStream.rangeClosed(1, n).boxed().toList();
     }
 }

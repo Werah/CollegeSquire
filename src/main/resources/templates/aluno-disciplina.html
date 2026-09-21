@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'College Squire - ' + ${disciplina.nome}">College Squire</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <div class="fundo-padrao"></div>
+
+    <header class="app-header">
+        <div th:replace="~{fragments/brasao :: brasao}"></div>
+        <div class="marca">
+            <strong th:text="${disciplina.nome}"></strong>
+            <span th:text="${disciplina.professor != null ? disciplina.professor.nome : ''}"></span>
+        </div>
+        <div class="usuario">
+            <a class="btn-sair" th:href="@{/home}">Voltar</a>
+        </div>
+    </header>
+
+    <main class="app-content">
+
+        <section class="painel">
+            <div class="admin-toolbar">
+                <h2>Minhas notas</h2>
+                <span class="metrica" th:if="${media != null}">
+                    Media: <strong th:text="${#numbers.formatDecimal(media,1,1)}"></strong>
+                </span>
+            </div>
+
+            <table class="tabela-grade" th:if="${not #lists.isEmpty(notas)}">
+                <thead>
+                <tr>
+                    <th>Avaliacao</th>
+                    <th>Tipo</th>
+                    <th>Peso</th>
+                    <th>Nota</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="n : ${notas}">
+                    <td th:text="${n.descricao}"></td>
+                    <td th:text="${n.tipo}"></td>
+                    <td th:text="${n.peso}"></td>
+                    <td th:text="${n.valor}"></td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="tabela-vazia" th:if="${#lists.isEmpty(notas)}">Nenhuma nota lancada ainda.</p>
+        </section>
+
+        <section class="painel">
+            <h2>Minhas faltas</h2>
+
+            <div class="lancar-shell">
+
+                <div class="lancar-config">
+                    <div class="calendario">
+                        <div class="calendario-cabecalho">
+                            <button type="button" id="mesAnterior">&#8249;</button>
+                            <span id="calendarioTitulo"></span>
+                            <button type="button" id="proximoMes">&#8250;</button>
+                        </div>
+                        <div class="calendario-dias-semana">
+                            <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+                        </div>
+                        <div class="calendario-grade" id="calendarioGrade"></div>
+                    </div>
+
+                    <div class="calendario-data-selecionada">
+                        Data selecionada
+                        <strong id="dataSelecionadaTexto"></strong>
+                    </div>
+                </div>
+
+                <div class="lancar-alunos">
+                    <div class="status-grande" id="statusPresenca">-</div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<script th:inline="javascript">
+    var frequenciasPorDia = /*[[${frequenciasPorDia}]]*/ {};
+    var diasPermitidos = /*[[${diasPermitidos}]]*/ [];
+</script>
+<script src="/js/calendario.js"></script>
+<script>
+    function atualizarStatusPresenca(data) {
+        var el = document.getElementById('statusPresenca');
+        var lista = data ? (frequenciasPorDia[data] || []) : [];
+
+        if (lista.length === 0) {
+            el.className = 'status-grande';
+            el.textContent = 'Sem registro';
+            return;
+        }
+
+        el.className = 'status-presenca-lista';
+        el.innerHTML = '';
+        lista.forEach(function (presente, indice) {
+            var marca = document.createElement('span');
+            marca.className = 'marca ' + (presente ? 'presente' : 'falta');
+            marca.textContent = indice + 1;
+            el.appendChild(marca);
+        });
+    }
+
+    iniciarCalendario({
+        dataTextoId: 'dataSelecionadaTexto',
+        diasPermitidos: diasPermitidos,
+        onSelecionar: atualizarStatusPresenca
+    });
+</script>
+
+</body>
+</html>
