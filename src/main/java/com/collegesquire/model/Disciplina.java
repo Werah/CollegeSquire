@@ -24,6 +24,13 @@ public class Disciplina {
     @Column(name = "sigla")
     private String sigla;
 
+    /**
+     * Cada linha de Disciplina e uma aula/oferta especifica de UMA turma.
+     * Se a mesma materia e dada em duas turmas, sao duas linhas de
+     * Disciplina diferentes (cada uma com sua propria lista de alunos,
+     * notas e frequencia) - ver DisciplinaAdminController#duplicar para
+     * facilitar a criacao da segunda a partir da primeira.
+     */
     @ManyToOne
     @JoinColumn(name = "idturma")
     private Turma turma;

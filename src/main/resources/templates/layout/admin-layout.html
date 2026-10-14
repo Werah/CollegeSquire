@@ -23,7 +23,7 @@
             <span>Sistema de gestao academica</span>
         </div>
         <div class="usuario">
-            <a class="btn-sair" th:href="@{/home}">Voltar</a>
+            <a class="btn-sair" th:href="${voltarUrl != null ? voltarUrl : '/home'}">Voltar</a>
         </div>
     </header>
 

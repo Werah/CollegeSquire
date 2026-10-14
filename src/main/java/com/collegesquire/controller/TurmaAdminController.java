@@ -1,6 +1,7 @@
 package com.collegesquire.controller;
 
 import com.collegesquire.dto.TurmaDto;
+import com.collegesquire.model.Curso;
 import com.collegesquire.model.Turma;
 import com.collegesquire.repository.CursoRepository;
 import com.collegesquire.service.CrudService;
@@ -48,14 +49,21 @@ public class TurmaAdminController extends CadastroController<TurmaDto> {
     }
 
     @GetMapping("/novo")
-    public String novo(HttpSession session, Model model) {
+    public String novo(@RequestParam(required = false) Long cursoId, HttpSession session, Model model) {
 
         if (!autorizado(session)) {
             return "redirect:/home";
         }
 
-        model.addAttribute("turma", new Turma());
+        Turma turma = new Turma();
+        if (cursoId != null) {
+            Curso curso = cursoRepository.findById(cursoId).orElse(null);
+            turma.setCurso(curso);
+        }
+
+        model.addAttribute("turma", turma);
         model.addAttribute("cursos", cursoRepository.findAll());
+        model.addAttribute("voltarUrl", voltarUrl(cursoId));
         model.addAttribute("tituloPagina", "Turmas");
 
         return "turma-form";
@@ -68,8 +76,12 @@ public class TurmaAdminController extends CadastroController<TurmaDto> {
             return "redirect:/home";
         }
 
-        model.addAttribute("turma", turmaService.buscarParaEdicao(id));
+        Turma turma = turmaService.buscarParaEdicao(id);
+        Long cursoId = turma.getCurso() != null ? turma.getCurso().getId() : null;
+
+        model.addAttribute("turma", turma);
         model.addAttribute("cursos", cursoRepository.findAll());
+        model.addAttribute("voltarUrl", voltarUrl(cursoId));
         model.addAttribute("tituloPagina", "Turmas");
 
         return "turma-form";
@@ -82,8 +94,12 @@ public class TurmaAdminController extends CadastroController<TurmaDto> {
             return "redirect:/home";
         }
 
-        turmaService.salvar(turma);
+        Turma salva = turmaService.salvar(turma);
 
-        return "redirect:/turmas";
+        return "redirect:" + voltarUrl(salva.getCurso() != null ? salva.getCurso().getId() : null);
+    }
+
+    private String voltarUrl(Long cursoId) {
+        return cursoId != null ? "/cursos/perfil/" + cursoId : "/turmas";
     }
 }

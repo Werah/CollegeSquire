@@ -20,7 +20,7 @@
         <div th:replace="~{fragments/brasao :: brasao}"></div>
         <div class="marca">
             <strong th:text="${aluno.nome}"></strong>
-            <span th:text="${disciplina.nome} + (${disciplina.turma} != null ? ' - Turma ' + ${disciplina.turma.numero} : '')"></span>
+            <span th:text="${disciplina.nome} + (${aluno.turma} != null ? ' - Turma ' + ${aluno.turma.numero} : '')"></span>
         </div>
         <div class="usuario">
             <a class="btn-sair" th:href="@{/professor/disciplinas/{id}(id=${disciplina.id})}">Voltar</a>

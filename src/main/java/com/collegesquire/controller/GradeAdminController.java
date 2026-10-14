@@ -51,6 +51,7 @@ public class GradeAdminController {
         model.addAttribute("cursos", cursoRepository.findAll());
         model.addAttribute("cursoId", cursoId);
         model.addAttribute("turmaId", turmaId);
+        model.addAttribute("voltarUrl", cursoId != null ? "/cursos/perfil/" + cursoId : null);
 
         if (cursoId != null) {
             model.addAttribute("turmas", turmaRepository.findByCursoId(cursoId));

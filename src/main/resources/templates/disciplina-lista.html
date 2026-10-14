@@ -28,6 +28,7 @@
             <td th:text="${d.professor != null ? d.professor.nome : '-'}"></td>
             <td class="col-acoes">
                 <a class="btn-icone" th:href="@{/disciplinas/editar/{id}(id=${d.id})}" title="Editar">&#9998;</a>
+                <a class="btn-icone" th:href="@{/disciplinas/duplicar/{id}(id=${d.id})}" title="Duplicar para outra turma">&#10064;</a>
                 <a class="btn-icone excluir" th:href="@{/disciplinas/deletar/{id}(id=${d.id})}" title="Excluir"
                    onclick="return confirm('Excluir este registro?')">&#10006;</a>
             </td>

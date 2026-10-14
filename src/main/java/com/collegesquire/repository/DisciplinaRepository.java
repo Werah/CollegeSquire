@@ -10,4 +10,6 @@ public interface DisciplinaRepository extends JpaRepository<Disciplina, Long> {
     List<Disciplina> findByTurmaId(Long turmaId);
 
     List<Disciplina> findByProfessorId(Long professorId);
+
+    List<Disciplina> findByTurma_CursoId(Long cursoId);
 }

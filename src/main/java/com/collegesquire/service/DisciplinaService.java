@@ -56,6 +56,10 @@ public class DisciplinaService implements CrudService<DisciplinaDto> {
         return disciplinaRepository.findByProfessorId(professorId);
     }
 
+    public List<DisciplinaDto> listarPorCurso(Long cursoId) {
+        return disciplinaMapper.toDtoList(disciplinaRepository.findByTurma_CursoId(cursoId));
+    }
+
     public DisciplinaDto paraDto(Disciplina disciplina) {
         return disciplinaMapper.toDto(disciplina);
     }

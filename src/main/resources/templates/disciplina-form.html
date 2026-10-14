@@ -7,6 +7,7 @@
 
     <div class="admin-form">
         <h2 th:text="${disciplina.id} != null ? 'Editar disciplina' : 'Nova disciplina'"></h2>
+        <small th:if="${duplicandoDe != null}" th:text="'Duplicando os dados de: ' + ${duplicandoDe} + '. Escolha a turma desta nova aula.'"></small>
 
         <form th:action="@{/disciplinas}" th:object="${disciplina}" method="post">
             <input type="hidden" th:field="*{id}">
@@ -25,6 +26,7 @@
                     <option th:each="t : ${turmas}" th:value="${t.id}"
                             th:text="'Turma ' + ${t.numero} + (${t.curso} != null ? ' - ' + ${t.curso.nome} : '')"></option>
                 </select>
+                <small>Se a mesma disciplina e cursada por outra turma, cadastre-a novamente com "Duplicar" abaixo, escolhendo a outra turma - cada turma tem sua propria aula, com lista de alunos, notas e faltas separadas.</small>
             </div>
             <div class="input-group">
                 <label>Professor</label>
@@ -35,7 +37,11 @@
             </div>
             <div class="botoes">
                 <button type="submit" class="btn btn-primario">Salvar</button>
-                <a class="btn btn-secundario" th:href="@{/disciplinas}">Cancelar</a>
+                <a class="btn btn-secundario" th:href="${voltarUrl}">Cancelar</a>
+                <a th:if="${disciplina.id != null}" class="btn btn-secundario"
+                   th:href="@{/disciplinas/duplicar/{id}(id=${disciplina.id}, cursoId=${disciplina.turma != null and disciplina.turma.curso != null ? disciplina.turma.curso.id : null})}">
+                    Duplicar para outra turma
+                </a>
             </div>
         </form>
     </div>

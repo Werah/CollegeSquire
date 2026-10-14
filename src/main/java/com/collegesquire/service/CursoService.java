@@ -25,6 +25,10 @@ public class CursoService implements CrudService<CursoDto> {
         return cursoMapper.toDtoList(cursoRepository.findAll());
     }
 
+    public CursoDto buscarDto(Long id) {
+        return cursoMapper.toDto(buscarParaEdicao(id));
+    }
+
     public Curso buscarParaEdicao(Long id) {
         return cursoRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ExceptionMessage.RESOURCE_NOT_FOUND.toString()));

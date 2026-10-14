@@ -32,8 +32,6 @@
         <a th:href="@{/alunos}">Alunos</a>
         <a th:href="@{/professores}">Professores</a>
         <a th:href="@{/cursos}">Cursos</a>
-        <a th:href="@{/disciplinas}">Disciplinas</a>
-        <a th:href="@{/turmas}">Turmas</a>
         <a th:href="@{/salas}">Salas</a>
         <a th:href="@{/grades}">Grade curricular</a>
     </nav>
@@ -124,7 +122,7 @@
                             <a th:if="${gradeMapa.get(dia.name() + '_' + linha) != null}"
                                th:href="@{/professor/disciplinas/{id}(id=${gradeMapa.get(dia.name() + '_' + linha).disciplina.id})}">
                                 <span th:text="${gradeMapa.get(dia.name() + '_' + linha).disciplina.sigla}" style="font-size:12px; font-weight:700; color:inherit;"></span>
-                                <span th:text="${gradeMapa.get(dia.name() + '_' + linha).disciplina.turma != null ? 'Turma ' + gradeMapa.get(dia.name() + '_' + linha).disciplina.turma.numero : ''}"></span>
+                                <span th:text="${gradeMapa.get(dia.name() + '_' + linha).turma != null ? 'Turma ' + gradeMapa.get(dia.name() + '_' + linha).turma.numero : ''}"></span>
                             </a>
                         </div>
                     </th:block>

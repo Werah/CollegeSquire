@@ -6,6 +6,7 @@ public record GradeDto(
         Long id,
         DiaSemana diaSemana,
         Integer linha,
+        TurmaDto turma,
         DisciplinaDto disciplina
 ) {
 }

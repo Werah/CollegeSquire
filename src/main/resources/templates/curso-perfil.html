@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="'College Squire - ' + ${curso.nome}">College Squire</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css">
+    <link rel="stylesheet" href="/css/app.css">
+    <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <div class="fundo-padrao"></div>
+
+    <header class="app-header">
+        <div th:replace="~{fragments/brasao :: brasao}"></div>
+        <div class="marca">
+            <strong th:text="${curso.nome}"></strong>
+            <span th:text="${curso.sigla}"></span>
+        </div>
+        <div class="usuario">
+            <a class="btn-sair" th:href="@{/cursos/editar/{id}(id=${curso.id})}">Editar cadastro</a>
+            <a class="btn-sair" th:href="@{/cursos}">Voltar</a>
+        </div>
+    </header>
+
+    <main class="app-content">
+
+        <section class="painel">
+            <div class="admin-toolbar">
+                <h2>Turmas cadastradas</h2>
+                <a class="btn btn-primario" th:href="@{/turmas/novo(cursoId=${curso.id})}">Nova turma</a>
+            </div>
+
+            <table class="tabela-grade" th:if="${not #lists.isEmpty(turmas)}">
+                <thead>
+                <tr>
+                    <th>Numero</th>
+                    <th>Periodo</th>
+                    <th class="col-acoes"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="t : ${turmas}" class="linha-clicavel"
+                    th:attr="data-href=@{/grades(cursoId=${curso.id},turmaId=${t.id})}">
+                    <td th:text="'Turma ' + ${t.numero}"></td>
+                    <td th:text="${t.periodo}"></td>
+                    <td class="col-acoes">
+                        <a class="btn-icone" th:href="@{/turmas/editar/{id}(id=${t.id})}" title="Editar turma">&#9998;</a>
+                        <a class="btn-icone excluir" th:href="@{/turmas/deletar/{id}(id=${t.id})}" title="Excluir"
+                           onclick="return confirm('Excluir este registro?')">&#10006;</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="tabela-vazia" th:if="${#lists.isEmpty(turmas)}">Nenhuma turma cadastrada ainda.</p>
+        </section>
+
+        <section class="painel">
+            <div class="admin-toolbar">
+                <h2>Disciplinas do curso</h2>
+                <a class="btn btn-primario" th:href="@{/disciplinas/novo(cursoId=${curso.id})}">Nova disciplina</a>
+            </div>
+
+            <table class="tabela-grade" th:if="${not #lists.isEmpty(disciplinas)}">
+                <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Sigla</th>
+                    <th>Turma</th>
+                    <th>Professor</th>
+                    <th class="col-acoes"></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="d : ${disciplinas}" class="linha-clicavel"
+                    th:attr="data-href=@{/disciplinas/editar/{id}(id=${d.id})}">
+                    <td th:text="${d.nome}"></td>
+                    <td th:text="${d.sigla}"></td>
+                    <td th:text="${d.turma != null ? 'Turma ' + d.turma.numero : '-'}"></td>
+                    <td th:text="${d.professor != null ? d.professor.nome : '-'}"></td>
+                    <td class="col-acoes">
+                        <a class="btn-icone" th:href="@{/disciplinas/editar/{id}(id=${d.id})}" title="Editar">&#9998;</a>
+                        <a class="btn-icone" th:href="@{/disciplinas/duplicar/{id}(id=${d.id},cursoId=${curso.id})}" title="Duplicar para outra turma">&#10064;</a>
+                        <a class="btn-icone excluir" th:href="@{/disciplinas/deletar/{id}(id=${d.id})}" title="Excluir"
+                           onclick="return confirm('Excluir este registro?')">&#10006;</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="tabela-vazia" th:if="${#lists.isEmpty(disciplinas)}">Nenhuma disciplina cadastrada ainda.</p>
+        </section>
+
+    </main>
+
+</div>
+
+<script src="/js/tabela-clicavel.js"></script>
+
+</body>
+</html>

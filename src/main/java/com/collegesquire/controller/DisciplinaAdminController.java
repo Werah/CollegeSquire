@@ -52,14 +52,45 @@ public class DisciplinaAdminController extends CadastroController<DisciplinaDto>
     }
 
     @GetMapping("/novo")
-    public String novo(HttpSession session, Model model) {
+    public String novo(@RequestParam(required = false) Long cursoId, HttpSession session, Model model) {
 
         if (!autorizado(session)) {
             return "redirect:/home";
         }
 
         model.addAttribute("disciplina", new Disciplina());
-        adicionarListas(model);
+        adicionarListas(model, cursoId);
+        model.addAttribute("voltarUrl", voltarUrl(cursoId));
+        model.addAttribute("tituloPagina", "Disciplinas");
+
+        return "disciplina-form";
+    }
+
+    /**
+     * Pre-preenche um formulario de nova disciplina com nome/sigla/professor
+     * de uma disciplina existente, deixando a turma em branco. Usado para
+     * cadastrar rapidamente a mesma materia como uma aula separada em outra
+     * turma (cada turma tem sua propria lista de alunos, notas e faltas).
+     */
+    @GetMapping("/duplicar/{id}")
+    public String duplicar(@PathVariable Long id, @RequestParam(required = false) Long cursoId,
+                            HttpSession session, Model model) {
+
+        if (!autorizado(session)) {
+            return "redirect:/home";
+        }
+
+        Disciplina origem = disciplinaService.buscarParaEdicao(id);
+
+        Disciplina copia = new Disciplina();
+        copia.setNome(origem.getNome());
+        copia.setSigla(origem.getSigla());
+        copia.setProfessor(origem.getProfessor());
+
+        model.addAttribute("disciplina", copia);
+        model.addAttribute("duplicandoDe", origem.getNome());
+        adicionarListas(model, cursoId);
+        model.addAttribute("voltarUrl", voltarUrl(cursoId));
         model.addAttribute("tituloPagina", "Disciplinas");
 
         return "disciplina-form";
@@ -72,8 +103,14 @@ public class DisciplinaAdminController extends CadastroController<DisciplinaDto>
             return "redirect:/home";
         }
 
-        model.addAttribute("disciplina", disciplinaService.buscarParaEdicao(id));
-        adicionarListas(model);
+        Disciplina disciplina = disciplinaService.buscarParaEdicao(id);
+        Long cursoId = disciplina.getTurma() != null && disciplina.getTurma().getCurso() != null
+                ? disciplina.getTurma().getCurso().getId()
+                : null;
+
+        model.addAttribute("disciplina", disciplina);
+        adicionarListas(model, cursoId);
+        model.addAttribute("voltarUrl", voltarUrl(cursoId));
         model.addAttribute("tituloPagina", "Disciplinas");
 
         return "disciplina-form";
@@ -86,13 +123,21 @@ public class DisciplinaAdminController extends CadastroController<DisciplinaDto>
             return "redirect:/home";
         }
 
-        disciplinaService.salvar(disciplina);
+        Disciplina salva = disciplinaService.salvar(disciplina);
 
-        return "redirect:/disciplinas";
+        Long cursoId = salva.getTurma() != null && salva.getTurma().getCurso() != null
+                ? salva.getTurma().getCurso().getId()
+                : null;
+
+        return "redirect:" + voltarUrl(cursoId);
     }
 
-    private void adicionarListas(Model model) {
-        model.addAttribute("turmas", turmaRepository.findAll());
+    private void adicionarListas(Model model, Long cursoId) {
+        model.addAttribute("turmas", cursoId != null ? turmaRepository.findByCursoId(cursoId) : turmaRepository.findAll());
         model.addAttribute("professores", professorRepository.findAll());
+    }
+
+    private String voltarUrl(Long cursoId) {
+        return cursoId != null ? "/cursos/perfil/" + cursoId : "/disciplinas";
     }
 }

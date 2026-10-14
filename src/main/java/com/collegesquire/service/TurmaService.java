@@ -38,4 +38,8 @@ public class TurmaService implements CrudService<TurmaDto> {
         Turma turma = buscarParaEdicao(id);
         turmaRepository.delete(turma);
     }
+
+    public List<TurmaDto> listarPorCurso(Long cursoId) {
+        return turmaMapper.toDtoList(turmaRepository.findByCursoId(cursoId));
+    }
 }

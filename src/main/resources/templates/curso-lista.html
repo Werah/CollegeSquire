@@ -19,7 +19,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="c : ${cursos}" class="linha-clicavel" th:attr="data-href=@{/cursos/editar/{id}(id=${c.id})}">
+        <tr th:each="c : ${cursos}" class="linha-clicavel" th:attr="data-href=@{/cursos/perfil/{id}(id=${c.id})}">
             <td th:text="${c.nome}"></td>
             <td th:text="${c.sigla}"></td>
             <td class="col-acoes">
