@@ -374,3 +374,22 @@
 .status-presenca-lista .marca.falta {
     background: #a03434;
 }
+
+.input-group input.invalido,
+.input-group select.invalido {
+    border-color: #c0392b;
+    background: #fdf3f2;
+}
+
+.input-group input.invalido:focus,
+.input-group select.invalido:focus {
+    border-color: #c0392b;
+    box-shadow: 0 0 0 3px #f6d5d1;
+}
+
+.admin-form .msg-erro {
+    margin-top: 6px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #c0392b;
+}

@@ -16,7 +16,7 @@
     <div class="fundo-padrao"></div>
 
     <header class="app-header">
-        <div th:replace="~{fragments/brasao :: brasao}"></div>
+        <div th:replace="~{fragments/brasao :: brasao-link}"></div>
         <div class="marca">
             <strong>College Squire</strong>
             <span>Sistema de gestao academica</span>
@@ -28,17 +28,7 @@
         </div>
     </header>
 
-    <nav class="app-nav" th:if="${tipo.name() == 'DIRECAO'}">
-        <a th:href="@{/alunos}">Alunos</a>
-        <a th:href="@{/professores}">Professores</a>
-        <a th:href="@{/cursos}">Cursos</a>
-        <a th:href="@{/salas}">Salas</a>
-        <a th:href="@{/grades}">Grade curricular</a>
-    </nav>
-
-    <nav class="app-nav" th:if="${tipo.name() == 'PROFESSOR'}">
-        <a th:href="@{/salas}">Salas</a>
-    </nav>
+    <nav th:replace="~{fragments/nav :: menu}"></nav>
 
     <main class="app-content">
 

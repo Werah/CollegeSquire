@@ -3,12 +3,14 @@ package com.collegesquire.service;
 import com.collegesquire.dto.DisciplinaDto;
 import com.collegesquire.dto.DisciplinaProfessorDTO;
 import com.collegesquire.dto.ProfessorDto;
+import com.collegesquire.exception.DadosInvalidosException;
 import com.collegesquire.exception.ExceptionMessage;
 import com.collegesquire.exception.ResourceNotFoundException;
 import com.collegesquire.mapper.ProfessorMapper;
 import com.collegesquire.model.Disciplina;
 import com.collegesquire.model.Professor;
 import com.collegesquire.repository.ProfessorRepository;
+import com.collegesquire.validation.Cpf;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -58,6 +60,10 @@ public class ProfessorService implements CrudService<ProfessorDto> {
     }
 
     public Professor salvar(Professor professorForm) {
+
+        if (!Cpf.valido(professorForm.getCpf())) {
+            throw new DadosInvalidosException("CPF invalido");
+        }
 
         if (professorForm.getId() != null) {
             Professor existente = buscarEntidade(professorForm.getId());

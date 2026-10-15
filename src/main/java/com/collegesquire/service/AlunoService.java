@@ -2,6 +2,7 @@ package com.collegesquire.service;
 
 import com.collegesquire.dto.AlunoDto;
 import com.collegesquire.dto.DisciplinaResumoDTO;
+import com.collegesquire.exception.DadosInvalidosException;
 import com.collegesquire.exception.ExceptionMessage;
 import com.collegesquire.exception.ResourceNotFoundException;
 import com.collegesquire.mapper.AlunoMapper;
@@ -12,6 +13,7 @@ import com.collegesquire.model.Frequencia;
 import com.collegesquire.model.Notas;
 import com.collegesquire.model.Turma;
 import com.collegesquire.repository.AlunoRepository;
+import com.collegesquire.validation.Cpf;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -67,6 +69,10 @@ public class AlunoService implements CrudService<AlunoDto> {
     }
 
     public Aluno salvar(Aluno alunoForm) {
+
+        if (!Cpf.valido(alunoForm.getCpf())) {
+            throw new DadosInvalidosException("CPF invalido");
+        }
 
         if (alunoForm.getId() != null) {
             Aluno existente = buscarEntidade(alunoForm.getId())

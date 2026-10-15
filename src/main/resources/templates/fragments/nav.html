@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--
+    Menu de atalhos exibido em todas as telas logadas. O tipo de usuario
+    vem direto da sessao, entao nenhum controller precisa repassa-lo.
+-->
+<nav th:fragment="menu" class="app-nav"
+     th:if="${session.tipoUsuario != null and (session.tipoUsuario.name() == 'DIRECAO' or session.tipoUsuario.name() == 'PROFESSOR')}">
+    <th:block th:if="${session.tipoUsuario.name() == 'DIRECAO'}">
+        <a th:href="@{/alunos}">Alunos</a>
+        <a th:href="@{/professores}">Professores</a>
+        <a th:href="@{/cursos}">Cursos</a>
+        <a th:href="@{/salas}">Salas</a>
+        <a th:href="@{/grades}">Grade curricular</a>
+    </th:block>
+    <th:block th:if="${session.tipoUsuario.name() == 'PROFESSOR'}">
+        <a th:href="@{/salas}">Salas</a>
+    </th:block>
+</nav>
+
+</body>
+</html>

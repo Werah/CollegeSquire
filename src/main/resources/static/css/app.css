@@ -32,6 +32,16 @@
     width: 44px;
 }
 
+.app-header .brasao-link {
+    display: flex;
+    border-radius: var(--raio);
+    transition: opacity 0.15s ease;
+}
+
+.app-header .brasao-link:hover {
+    opacity: 0.75;
+}
+
 .app-header .marca {
     display: flex;
     flex-direction: column;

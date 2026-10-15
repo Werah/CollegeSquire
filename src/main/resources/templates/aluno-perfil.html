@@ -17,7 +17,7 @@
     <div class="fundo-padrao"></div>
 
     <header class="app-header">
-        <div th:replace="~{fragments/brasao :: brasao}"></div>
+        <div th:replace="~{fragments/brasao :: brasao-link}"></div>
         <div class="marca">
             <strong th:text="${aluno.nome}"></strong>
             <span th:text="${aluno.curso != null ? aluno.curso.nome : ''}"></span>
@@ -27,6 +27,8 @@
             <a class="btn-sair" th:href="@{/alunos}">Voltar</a>
         </div>
     </header>
+
+    <nav th:replace="~{fragments/nav :: menu}"></nav>
 
     <main class="app-content">
 

@@ -17,7 +17,7 @@
     <div class="fundo-padrao"></div>
 
     <header class="app-header">
-        <div th:replace="~{fragments/brasao :: brasao}"></div>
+        <div th:replace="~{fragments/brasao :: brasao-link}"></div>
         <div class="marca">
             <strong th:text="${tituloPagina}">Titulo</strong>
             <span>Sistema de gestao academica</span>
@@ -26,6 +26,8 @@
             <a class="btn-sair" th:href="${voltarUrl != null ? voltarUrl : '/home'}">Voltar</a>
         </div>
     </header>
+
+    <nav th:replace="~{fragments/nav :: menu}"></nav>
 
     <main class="app-content">
         <section class="painel">
@@ -38,6 +40,7 @@
 </div>
 
 <script src="/js/tabela-clicavel.js"></script>
+<script src="/js/validacao-form.js"></script>
 
 </body>
 </html>

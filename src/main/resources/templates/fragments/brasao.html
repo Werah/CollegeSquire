@@ -4,5 +4,10 @@
 
 <img th:fragment="brasao" class="brasao" src="/img/logo-placeholder.svg" alt="Logo College Squire"/>
 
+<!-- Logo clicavel das telas logadas: leva de volta para a home. -->
+<a th:fragment="brasao-link" class="brasao-link" th:href="@{/home}" title="Voltar para o inicio">
+    <img class="brasao" src="/img/logo-placeholder.svg" alt="Logo College Squire"/>
+</a>
+
 </body>
 </html>
