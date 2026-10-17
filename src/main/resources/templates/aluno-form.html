@@ -30,6 +30,7 @@
                 <select th:field="*{turma}" required>
                     <option value="">Selecione...</option>
                     <option th:each="t : ${turmas}" th:value="${t.id}"
+                            th:attr="data-curso=${t.curso != null ? t.curso.id : ''}"
                             th:text="'Turma ' + ${t.numero} + (${t.curso} != null ? ' - ' + ${t.curso.nome} : '')"></option>
                 </select>
             </div>
@@ -60,6 +61,49 @@
             </div>
         </form>
     </div>
+
+    <script>
+        // So mostra no seletor de turma as turmas do curso escolhido.
+        (function () {
+            var curso = document.querySelector('select[name=curso]');
+            var turma = document.querySelector('select[name=turma]');
+
+            var turmas = Array.prototype.map.call(turma.querySelectorAll('option[data-curso]'), function (o) {
+                return {value: o.value, texto: o.textContent, curso: o.getAttribute('data-curso')};
+            });
+
+            function filtrar() {
+                var atual = turma.value;
+                var cursoId = curso.value;
+
+                turma.innerHTML = '';
+
+                var vazio = document.createElement('option');
+                vazio.value = '';
+                vazio.textContent = cursoId ? 'Selecione...' : 'Selecione um curso primeiro';
+                turma.appendChild(vazio);
+
+                turmas.forEach(function (t) {
+                    if (cursoId && t.curso === cursoId) {
+                        var opcao = document.createElement('option');
+                        opcao.value = t.value;
+                        opcao.textContent = t.texto;
+                        opcao.setAttribute('data-curso', t.curso);
+                        turma.appendChild(opcao);
+                    }
+                });
+
+                var aindaValida = Array.prototype.some.call(turma.options, function (o) {
+                    return o.value === atual && atual !== '';
+                });
+                turma.value = aindaValida ? atual : '';
+                turma.dispatchEvent(new Event('change', {bubbles: true}));
+            }
+
+            curso.addEventListener('change', filtrar);
+            filtrar();
+        })();
+    </script>
 
 </div>
 

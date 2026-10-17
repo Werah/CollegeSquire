@@ -23,7 +23,9 @@
             <span th:text="${disciplina.nome} + (${aluno.turma} != null ? ' - Turma ' + ${aluno.turma.numero} : '')"></span>
         </div>
         <div class="usuario">
+            <th:block th:replace="~{fragments/usuario :: identificacao}"></th:block>
             <a class="btn-sair" th:href="@{/professor/disciplinas/{id}(id=${disciplina.id})}">Voltar</a>
+            <a th:replace="~{fragments/usuario :: sair}"></a>
         </div>
     </header>
 
@@ -70,6 +72,21 @@
 
         <section class="painel">
             <h2>Frequencia nesta disciplina</h2>
+
+            <div class="resumo-presenca">
+                <div class="resumo-item">
+                    <span>Presencas</span>
+                    <strong th:text="${resumoPresenca.fracao()}"></strong>
+                </div>
+                <div class="resumo-item">
+                    <span>Presenca geral</span>
+                    <strong th:text="${resumoPresenca.percentualFormatado()}"></strong>
+                </div>
+                <div class="resumo-item">
+                    <span>Faltas</span>
+                    <strong th:text="${resumoPresenca.faltas()}"></strong>
+                </div>
+            </div>
 
             <div class="lancar-shell">
 

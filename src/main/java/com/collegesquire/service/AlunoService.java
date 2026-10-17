@@ -74,6 +74,12 @@ public class AlunoService implements CrudService<AlunoDto> {
             throw new DadosInvalidosException("CPF invalido");
         }
 
+        if (alunoForm.getTurma() != null && alunoForm.getTurma().getCurso() != null
+                && (alunoForm.getCurso() == null
+                || !alunoForm.getTurma().getCurso().getId().equals(alunoForm.getCurso().getId()))) {
+            throw new DadosInvalidosException("A turma escolhida nao pertence ao curso do aluno");
+        }
+
         if (alunoForm.getId() != null) {
             Aluno existente = buscarEntidade(alunoForm.getId())
                     .orElseThrow(() -> new ResourceNotFoundException(ExceptionMessage.RESOURCE_NOT_FOUND.toString()));

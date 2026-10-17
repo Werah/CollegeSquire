@@ -54,6 +54,7 @@ public class AlunoController {
         model.addAttribute("notas", notasService.listarDtoPorDisciplinaEAluno(id, alunoId));
         model.addAttribute("media", notasService.calcularMediaPorDisciplinaEAluno(id, alunoId));
         model.addAttribute("frequenciasPorDia", frequenciaService.mapaPorDiaDoAluno(id, alunoId));
+        model.addAttribute("resumoPresenca", frequenciaService.resumoDoAluno(id, alunoId));
         model.addAttribute("diasPermitidos", List.copyOf(periodosPorDiaSemana.keySet()));
 
         return "aluno-disciplina";

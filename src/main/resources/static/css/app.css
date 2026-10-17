@@ -377,3 +377,17 @@
     font-weight: 500;
     color: var(--cinza-500);
 }
+
+.app-header .usuario .usuario-nome {
+    font-weight: 600;
+    color: var(--azul-900);
+}
+
+.app-header .btn-logout {
+    color: #a03434;
+}
+
+.app-header .btn-logout:hover {
+    background: #fbeaea;
+    border-color: #d68989;
+}

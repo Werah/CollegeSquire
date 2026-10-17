@@ -49,7 +49,9 @@ public class ProfessorController {
         }
 
         model.addAttribute("disciplina", disciplinaService.paraDto(disciplina));
-        model.addAttribute("alunos", alunosDaTurma(disciplina));
+        List<Aluno> alunos = alunosDaTurma(disciplina);
+        model.addAttribute("alunos", alunos);
+        model.addAttribute("resumosPresenca", frequenciaService.resumoPorAluno(id, alunos));
         model.addAttribute("notas", notasService.listarDtoPorDisciplina(id));
         model.addAttribute("frequenciasPorDia", frequenciaService.mapaPorDiaETurma(id));
         model.addAttribute("diasPermitidos", List.copyOf(gradeService.periodosPorDiaSemana(id).keySet()));
@@ -73,16 +75,27 @@ public class ProfessorController {
 
     @PostMapping("/disciplinas/{id}/notas")
     public String lancarNotas(@PathVariable Long id,
-                               @RequestParam String descricao,
-                               @RequestParam String tipo,
-                               @RequestParam Double peso,
-                               @RequestParam List<Long> alunoIds,
-                               @RequestParam List<String> valores,
+                               @RequestParam(required = false) String descricao,
+                               @RequestParam(required = false) String tipo,
+                               @RequestParam(required = false) Double peso,
+                               @RequestParam(required = false) List<Long> alunoIds,
+                               @RequestParam(required = false) List<String> valores,
                                HttpSession session) {
 
         Disciplina disciplina = disciplinaAutorizada(id, session);
         if (disciplina == null) {
             return "redirect:/home";
+        }
+
+        boolean dadosCompletos = descricao != null && !descricao.isBlank()
+                && tipo != null && !tipo.isBlank()
+                && peso != null
+                && alunoIds != null
+                && valores != null && valores.stream().anyMatch(v -> v != null && !v.isBlank());
+
+        // a tela ja barra isso; aqui evita erro caso a requisicao venha incompleta
+        if (!dadosCompletos) {
+            return "redirect:/professor/disciplinas/" + id + "/notas";
         }
 
         notasService.lancarNotas(disciplina, alunosDaTurma(disciplina), descricao, tipo, peso, alunoIds, valores);
@@ -147,6 +160,7 @@ public class ProfessorController {
         model.addAttribute("disciplina", disciplinaService.paraDto(disciplina));
         model.addAttribute("notas", notasService.listarDtoPorDisciplinaEAluno(disciplinaId, id));
         model.addAttribute("frequenciasPorDia", frequenciaService.mapaPorDiaDoAluno(disciplinaId, id));
+        model.addAttribute("resumoPresenca", frequenciaService.resumoDoAluno(disciplinaId, id));
         model.addAttribute("diasPermitidos", List.copyOf(gradeService.periodosPorDiaSemana(disciplinaId).keySet()));
 
         return "professor-aluno";

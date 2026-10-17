@@ -22,9 +22,8 @@
             <span>Sistema de gestao academica</span>
         </div>
         <div class="usuario">
-            <span th:text="${nome}"></span>
-            <span class="badge" th:text="${tipo}"></span>
-            <a class="btn-sair" th:href="@{/logout}">Sair</a>
+            <th:block th:replace="~{fragments/usuario :: identificacao}"></th:block>
+            <a th:replace="~{fragments/usuario :: sair}"></a>
         </div>
     </header>
 
@@ -62,6 +61,10 @@
                         </div>
                     </th:block>
                 </div>
+
+                <p class="tabela-vazia" th:if="${#maps.isEmpty(gradeMapa)}">
+                    Nenhuma aula cadastrada na grade da sua turma ainda.
+                </p>
             </section>
 
             <section class="painel">
@@ -149,16 +152,6 @@
                 <p class="tabela-vazia" th:if="${#lists.isEmpty(minhasDisciplinas)}">
                     Nenhuma disciplina atribuida a voce ainda.
                 </p>
-            </section>
-        </div>
-
-        <!-- DIRECAO -->
-        <div th:if="${tipo.name() == 'DIRECAO'}">
-            <section class="painel">
-                <div class="painel-vazio">
-                    <strong>PLACEHOLDER</strong>
-                    <span>Painel da coordenacao em construcao.</span>
-                </div>
             </section>
         </div>
 

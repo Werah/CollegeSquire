@@ -31,6 +31,14 @@ public class TurmaService implements CrudService<TurmaDto> {
     }
 
     public Turma salvar(Turma turma) {
+
+        // o formulario de turma nao envia periodosPorDia (e configurado na grade
+        // curricular): ao editar, preserva o valor ja salvo em vez de zerar
+        if (turma.getId() != null) {
+            turmaRepository.findById(turma.getId())
+                    .ifPresent(existente -> turma.setPeriodosPorDia(existente.getPeriodosPorDia()));
+        }
+
         return turmaRepository.save(turma);
     }
 

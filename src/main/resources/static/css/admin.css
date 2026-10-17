@@ -393,3 +393,47 @@
     font-weight: 600;
     color: #c0392b;
 }
+
+.resumo-presenca {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.resumo-presenca .resumo-item {
+    flex: 1 1 140px;
+    padding: 14px 18px;
+    background: var(--azul-050);
+    border: 1px solid var(--azul-200);
+    border-radius: var(--raio);
+}
+
+.resumo-presenca .resumo-item span {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--cinza-500);
+    margin-bottom: 4px;
+}
+
+.resumo-presenca .resumo-item strong {
+    font-family: "Cinzel", Georgia, serif;
+    font-size: 22px;
+    color: var(--azul-900);
+}
+
+.lancar-alunos input.invalido {
+    border-color: #c0392b;
+    background: #fdf3f2;
+}
+
+.msg-erro {
+    margin-top: 6px;
+    margin-bottom: 10px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #c0392b;
+}

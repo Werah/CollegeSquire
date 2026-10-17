@@ -23,8 +23,10 @@
             <span th:text="${aluno.curso != null ? aluno.curso.nome : ''}"></span>
         </div>
         <div class="usuario">
+            <th:block th:replace="~{fragments/usuario :: identificacao}"></th:block>
             <a class="btn-sair" th:href="@{/alunos/editar/{id}(id=${aluno.id})}">Editar cadastro</a>
             <a class="btn-sair" th:href="@{/alunos}">Voltar</a>
+            <a th:replace="~{fragments/usuario :: sair}"></a>
         </div>
     </header>
 

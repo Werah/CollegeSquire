@@ -1,5 +1,6 @@
 package com.collegesquire.service;
 
+import com.collegesquire.dto.FrequenciaResumoDto;
 import com.collegesquire.model.Aluno;
 import com.collegesquire.model.Disciplina;
 import com.collegesquire.model.Frequencia;
@@ -27,6 +28,34 @@ public class FrequenciaService {
 
     public List<Frequencia> listarPorAluno(Long alunoId) {
         return frequenciaRepository.findByAlunoIdOrderByDisciplinaIdAsc(alunoId);
+    }
+
+    /** Presenca geral de um aluno na disciplina (cada aula/periodo conta como uma). */
+    public FrequenciaResumoDto resumoDoAluno(Long disciplinaId, Long alunoId) {
+        return resumir(listarPorDisciplinaEAluno(disciplinaId, alunoId));
+    }
+
+    /** Presenca geral de cada aluno informado na disciplina, indexada pelo id do aluno. */
+    public Map<Long, FrequenciaResumoDto> resumoPorAluno(Long disciplinaId, List<Aluno> alunos) {
+
+        Map<Long, List<Frequencia>> porAluno = new LinkedHashMap<>();
+        for (Frequencia frequencia : frequenciaRepository.findByDisciplinaIdOrderByDataAscNumeroAulaAsc(disciplinaId)) {
+            porAluno.computeIfAbsent(frequencia.getAluno().getId(), chave -> new ArrayList<>()).add(frequencia);
+        }
+
+        Map<Long, FrequenciaResumoDto> resultado = new LinkedHashMap<>();
+        for (Aluno aluno : alunos) {
+            resultado.put(aluno.getId(), resumir(porAluno.getOrDefault(aluno.getId(), List.of())));
+        }
+
+        return resultado;
+    }
+
+    private FrequenciaResumoDto resumir(List<Frequencia> frequencias) {
+        int presentes = (int) frequencias.stream()
+                .filter(f -> Boolean.TRUE.equals(f.getPresente()))
+                .count();
+        return new FrequenciaResumoDto(presentes, frequencias.size());
     }
 
     /**

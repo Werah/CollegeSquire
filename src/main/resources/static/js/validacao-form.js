@@ -124,6 +124,33 @@
         );
     }
 
+    // Regra de grupo: ao menos um campo com o nome indicado em
+    // data-pelo-menos-um precisa estar preenchido (ex.: notas dos alunos).
+    function validarGrupo(form) {
+        var nome = form.getAttribute('data-pelo-menos-um');
+        if (!nome) {
+            return true;
+        }
+
+        var campos = Array.prototype.slice.call(form.querySelectorAll('[name="' + nome + '"]'));
+        var aviso = form.querySelector('.aviso-grupo');
+        var algum = campos.some(function (c) { return c.value.trim() !== ''; });
+
+        campos.forEach(function (c) { c.classList.toggle('invalido', !algum); });
+        if (aviso) {
+            aviso.innerHTML = '';
+            if (!algum && campos.length) {
+                var msg = document.createElement('div');
+                msg.className = 'msg-erro';
+                msg.setAttribute('role', 'alert');
+                msg.textContent = form.getAttribute('data-mensagem-grupo') || 'Preencha ao menos um campo';
+                aviso.appendChild(msg);
+            }
+        }
+
+        return algum || !campos.length;
+    }
+
     function prepararFormulario(form) {
         form.noValidate = true;
 
@@ -149,6 +176,16 @@
             campo.addEventListener('change', aoCorrigir);
         });
 
+        if (form.getAttribute('data-pelo-menos-um')) {
+            form.querySelectorAll('[name="' + form.getAttribute('data-pelo-menos-um') + '"]').forEach(function (c) {
+                c.addEventListener('input', function () {
+                    if (c.classList.contains('invalido')) {
+                        validarGrupo(form);
+                    }
+                });
+            });
+        }
+
         form.addEventListener('submit', function (evento) {
             var primeiroInvalido = null;
 
@@ -158,6 +195,10 @@
                 }
             });
 
+            if (!validarGrupo(form) && !primeiroInvalido) {
+                primeiroInvalido = form.querySelector('[name="' + form.getAttribute('data-pelo-menos-um') + '"]');
+            }
+
             if (primeiroInvalido) {
                 evento.preventDefault();
                 primeiroInvalido.focus();
@@ -166,6 +207,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        document.querySelectorAll('.admin-form form').forEach(prepararFormulario);
+        document.querySelectorAll('.admin-form form, form[data-validar-form]').forEach(prepararFormulario);
     });
 })();

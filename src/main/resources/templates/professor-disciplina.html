@@ -23,7 +23,9 @@
             <span th:text="${disciplina.turma != null ? 'Turma ' + disciplina.turma.numero + (disciplina.turma.curso != null ? ' - ' + disciplina.turma.curso.nome : '') : ''}"></span>
         </div>
         <div class="usuario">
+            <th:block th:replace="~{fragments/usuario :: identificacao}"></th:block>
             <a class="btn-sair" th:href="@{/home}">Voltar</a>
+            <a th:replace="~{fragments/usuario :: sair}"></a>
         </div>
     </header>
 
@@ -46,6 +48,7 @@
                     <th>Nome</th>
                     <th>Matricula</th>
                     <th>E-mail</th>
+                    <th>Presenca</th>
                     <th></th>
                 </tr>
                 </thead>
@@ -55,6 +58,8 @@
                     <td th:text="${a.nome}"></td>
                     <td th:text="${a.matricula}"></td>
                     <td th:text="${a.email}"></td>
+                    <td th:with="r=${resumosPresenca.get(a.id)}"
+                        th:text="${r.total() == 0} ? '-' : ${r.fracao()} + ' (' + ${r.percentualFormatado()} + ')'"></td>
                     <td class="acoes">
                         <a class="btn btn-secundario" th:href="@{/professor/alunos/{id}(id=${a.id}, disciplinaId=${disciplina.id})}">Ver perfil</a>
                     </td>

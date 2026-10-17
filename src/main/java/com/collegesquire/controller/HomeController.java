@@ -72,9 +72,16 @@ public class HomeController {
                 ? gradeService.buscarGradeDaTurma(aluno.turma().id())
                 : List.of();
 
-        int periodosPorDia = aluno.turma() != null && aluno.turma().periodosPorDia() != null
-                ? aluno.turma().periodosPorDia()
-                : 0;
+        // turmas antigas podem ter periodosPorDia nulo: usa o padrao da grade
+        // e garante linhas suficientes para todas as aulas ja cadastradas
+        int periodosPorDia = 0;
+        if (aluno.turma() != null) {
+            int configurado = aluno.turma().periodosPorDia() != null
+                    ? aluno.turma().periodosPorDia()
+                    : GradeService.PERIODOS_PADRAO;
+            int maiorLinha = grade.stream().mapToInt(GradeDto::linha).max().orElse(0);
+            periodosPorDia = Math.max(configurado, maiorLinha);
+        }
 
         model.addAttribute("curso", aluno.curso());
         model.addAttribute("disciplinas", disciplinas);

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- Legenda de quem esta logado (nome + tipo), lida da sessao. -->
+<th:block th:fragment="identificacao">
+    <span class="usuario-nome" th:text="${session.usuarioNome}"></span>
+    <span class="badge" th:text="${session.tipoUsuario}"></span>
+</th:block>
+
+<!-- Botao de sair, sempre o ultimo item do cabecalho. -->
+<a th:fragment="sair" class="btn-sair btn-logout" th:href="@{/logout}">Sair</a>
+
+</body>
+</html>
